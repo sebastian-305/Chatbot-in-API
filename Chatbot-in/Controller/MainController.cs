@@ -25,6 +25,13 @@ public class MainController : ControllerBase
         return "Here is your token!";
     }
 
+    [HttpGet("files")]
+    public string GetFiles()
+    {
+        _logger.Log(LogLevel.Information, "Entered GetFiles");
+        return "No files here!";
+    }
+
     [HttpPost("upload")]
     public string PostFile()
     {

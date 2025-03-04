@@ -2,6 +2,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+
+
+Console.WriteLine(secrets["TestSecret"]);
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Chatbot_in</RootNamespace>
+    <UserSecretsId>41092320-bd50-4752-a4c4-7ffb4e2b5d9e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
