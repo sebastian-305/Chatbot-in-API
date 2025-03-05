@@ -1,0 +1,27 @@
+[
+  {
+    "Name": "Alle",
+    "Projects": [
+      {
+        "Path": "Chatbot-in\\Chatbot-in.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Chatbot-in-frontend\\chatbot-in-frontend.esproj",
+        "Action": "Start",
+        "DebugTarget": "localhost (Chrome)"
+      }
+    ]
+  },
+  {
+    "Name": "Nur Backend",
+    "Projects": [
+      {
+        "Path": "Chatbot-in\\Chatbot-in.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  }
+]
