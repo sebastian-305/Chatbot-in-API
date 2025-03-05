@@ -24,14 +24,10 @@ function App() {
             method: 'GET'  
         });
 
-        fetch(request)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                document.querySelector("#answer").innerHTML = responseJson;
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        
+        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
+
+        
 
     }
 }

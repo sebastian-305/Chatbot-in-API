@@ -15,6 +15,20 @@ builder.Services.AddHttpLogging(logging =>
     //| HttpLoggingFields.Response;
 });
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:51767",
+                                              "https://localhost:51767");
+                      });
+});
+
 
 // Add services to the container.
 
@@ -31,6 +45,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseHttpLogging();
+app.UseCors(MyAllowSpecificOrigins);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
