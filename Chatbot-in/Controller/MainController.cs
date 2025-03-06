@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Chatbot_in.Domain.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chatbot_in.Controllers;
 
@@ -9,8 +10,6 @@ public class MainController : ControllerBase
 {
 
     private readonly ILogger<MainController> _logger;
-
-
  
 
     public MainController(ILogger<MainController> logger)
@@ -19,39 +18,48 @@ public class MainController : ControllerBase
     }
 
     [HttpGet("token")]
-    public string GetToken()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<Token>> GetToken()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
-        return "Here is your token!";
+
+        //Token generation
+        
+        return Ok(new Token().TokenId = "Not a real Token");
     }
 
     [HttpGet("files")]
-    public string GetFiles()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetFiles");
-        return "No files here!";
+        //Get Fileinfos from Database
+
+        return Ok();
     }
 
     [HttpPost("upload")]
-    public string PostFile()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<string>> PostFile()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.PostFile");
-        return "File Uploaded! (Not really)";
+        return Ok("File Uploaded! (Not really)");
     }
 
     [HttpDelete("delete")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public string DeleteFile()
+    public async Task<ActionResult<string>> DeleteFile()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.DeleteFile");
-        return "File Deleted! (Not really)";
+        return Ok("File Deleted! (Not really)");
     }
 
     [HttpPost("chat")]
-    public string PostChat()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<string>> PostChat()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
-        return "Beep Boop I'm a bot!";
+        return Ok("Beep Boop I'm a bot!");
     }
 }

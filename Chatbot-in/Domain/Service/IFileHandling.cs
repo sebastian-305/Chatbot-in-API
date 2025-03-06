@@ -1,6 +1,6 @@
 ﻿namespace Chatbot_in.Domain.Service
 {
-    public interface IFileHandling
+    public interface IFileHandlingTemporary
     {
         void SaveFile(object binary);
 

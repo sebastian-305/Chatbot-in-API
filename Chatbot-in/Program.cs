@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 
 //Service to log httpRequests and responses
 builder.Services.AddHttpLogging(logging =>
@@ -14,11 +15,8 @@ builder.Services.AddHttpLogging(logging =>
     logging.ResponseBodyLogLimit = 256;
     //| HttpLoggingFields.Response;
 });
-
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
-
-
+//Makes our front-end work
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -29,13 +27,8 @@ builder.Services.AddCors(options =>
                       });
 });
 
-
-// Add services to the container.
-
+//For providing the Database connection information
 var secrets = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
-
-Console.WriteLine("Secret:");
-Console.WriteLine(secrets["TestSecret"]);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,6 +36,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
 
 app.UseHttpLogging();
 app.UseCors(MyAllowSpecificOrigins);
