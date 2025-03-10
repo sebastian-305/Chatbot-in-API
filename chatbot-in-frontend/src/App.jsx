@@ -28,7 +28,7 @@ function App() {
     }
 
     function getMockAnswer2() {
-        var request = new Request('http://localhost:5114/upload', {
+        var request = new Request('http://localhost:5114/upload?token=salkfdjq34jk', {
             method: 'POST'
         });
         fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
@@ -36,7 +36,7 @@ function App() {
 
 
     function getMockAnswer3() {
-        var request = new Request('http://localhost:5114/files', {
+        var request = new Request('http://localhost:5114/files?token=salkfdjq34jk', {
             method: 'GET'
         });
         fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
