@@ -1,3 +1,4 @@
+using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
 );
+
+builder.Services.AddScoped<ITokenRepository, HetznerDbTokenRepository>();
 
 
 var app = builder.Build();

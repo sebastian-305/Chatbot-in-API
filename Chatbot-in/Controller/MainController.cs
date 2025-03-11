@@ -1,4 +1,5 @@
 ﻿using Chatbot_in.Domain.Models;
+using Chatbot_in.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatbot_in.Controllers;
@@ -10,11 +11,13 @@ public class MainController : ControllerBase
 {
 
     private readonly ILogger<MainController> _logger;
+    private readonly ITokenRepository _tokenRepository;
  
 
-    public MainController(ILogger<MainController> logger)
+    public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository)
     {
         _logger = logger;
+        _tokenRepository = tokenRepository;
     }
 
     [HttpGet("token")]
@@ -23,9 +26,17 @@ public class MainController : ControllerBase
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
 
-        //Token generation
-        
-        return Ok(new Token().TokenId = "Not a real Token");
+
+        Token t = new Token
+        {
+            TokenId = "Token" + Random.Shared.Next(500),
+            CreatedAt = DateTime.Now,
+            LastUse = DateTime.Now
+          
+        };
+
+        await _tokenRepository.SaveToken(t);
+        return Ok(t);
     }
 
     [HttpGet("files")]
