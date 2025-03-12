@@ -2,9 +2,9 @@
 
 public interface IFileHandlingTemporary
 {
-    void SaveFile(object binary);
+    Task SaveFile(object binary);
 
-    void LoadFile(string path);
+    Task LoadFile(string path);
 
-    void DeleteFile(string path);
+    Task DeleteFile(string path);
 }

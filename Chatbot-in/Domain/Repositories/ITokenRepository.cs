@@ -4,8 +4,8 @@ namespace Chatbot_in.Domain.Repositories
 {
     public interface ITokenRepository
     {
-        Task SaveToken(Token token);
+        Task<int> SaveToken(Token token);
 
-        Task DeleteToken(Token token);
+        Task<int> DeleteToken(Token token);
     }
 }

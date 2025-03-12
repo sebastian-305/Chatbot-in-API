@@ -12,17 +12,17 @@ namespace Chatbot_in.Infrastructure.HetznerDbRepository
             _dbContext = dbContext;
         }
 
-        public void DeleteFile(ContextFileInfo contextFileInfo)
+        public Task DeleteFile(ContextFileInfo contextFileInfo)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ContextFileInfo> GetFiles(string token)
+        public Task<IEnumerable<ContextFileInfo>> GetFiles(string token)
         {
             throw new NotImplementedException();
         }
 
-        public void SaveFile(ContextFileInfo contextFileInfo)
+        public Task SaveFile(ContextFileInfo contextFileInfo)
         {
             throw new NotImplementedException();
         }
