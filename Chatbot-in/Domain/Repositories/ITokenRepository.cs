@@ -6,6 +6,10 @@ namespace Chatbot_in.Domain.Repositories
     {
         Task<int> SaveToken(Token token);
 
-        Task<int> DeleteToken(Token token);
+        Task<int> UpdateLastUse(string tokenId);
+
+        Task<Token> FindToken(string tokenId);
+
+        Task<int> DeleteToken(string tokenId);
     }
 }

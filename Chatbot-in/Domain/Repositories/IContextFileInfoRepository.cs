@@ -4,9 +4,9 @@ namespace Chatbot_in.Domain.Repositories;
 
 public interface IContextFileInfoRepository
 {
-    Task SaveFile(ContextFileInfo contextFileInfo);
+    Task<int> SaveFile(ContextFileInfo contextFileInfo);
 
-    Task<IEnumerable<ContextFileInfo>> GetFiles(string token);
+    Task<IEnumerable<ContextFileInfo>> GetFiles(string tokenId);
 
-    Task DeleteFile(ContextFileInfo contextFileInfo);
+    Task<int> DeleteFile(ContextFileInfo contextFileInfo);
 }
