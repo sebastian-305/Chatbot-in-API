@@ -1,5 +1,6 @@
 ﻿using Chatbot_in.Domain.Models;
 using Chatbot_in.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chatbot_in.Infrastructure.HetznerDbRepository
 {
@@ -41,14 +42,37 @@ namespace Chatbot_in.Infrastructure.HetznerDbRepository
             return states;
         }
 
-        public Task<IEnumerable<ContextFileInfo>> GetFiles(string tokenId)
+        public async Task<IEnumerable<ContextFileInfo>> GetFiles(string tokenId)
         {
-            throw new NotImplementedException();
+            _logger.Log(LogLevel.Information, "Getting all context files");
+            _logger.Log(LogLevel.Debug, "From owner {token}", tokenId);
+
+            var files = await _dbContext.Files.ToListAsync();
+
+            files = files.Where(f => f.OwnerToken.Equals(tokenId)).ToList();
+
+            _logger.Log(LogLevel.Debug, "Returning {num} file infos", files.Count);
+
+            return files;
         }
 
-        public Task<int> SaveFile(ContextFileInfo contextFileInfo)
+        public async Task<int> SaveFile(ContextFileInfo contextFileInfo)
         {
-            throw new NotImplementedException();
+            _logger.Log(LogLevel.Information, "Saving ContextFileInfo in Database");
+            _logger.Log(LogLevel.Debug, "Filename: {filename} \nOnwer: {owner}", contextFileInfo.FileName, contextFileInfo.OwnerToken);
+            _dbContext.Add(contextFileInfo);
+            int states = await _dbContext.SaveChangesAsync();
+
+            if (states == 0)
+            {
+                _logger.Log(LogLevel.Warning, "0 Rows saved in Database");
+            }
+            else
+            {
+                _logger.Log(LogLevel.Debug, "ContextFileInfo saved, {states} rows affected", states);
+            }
+
+            return states;
         }
     }
 }
