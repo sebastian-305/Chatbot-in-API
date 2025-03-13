@@ -16,7 +16,6 @@ namespace Chatbot_in.Infrastructure.HetznerDbRepository
             _logger = logger;
         }
 
-
         public async Task<int> DeleteToken(string tokenId)
         {
             _logger.Log(LogLevel.Information, "Deleting Token in Database");
@@ -44,9 +43,21 @@ namespace Chatbot_in.Infrastructure.HetznerDbRepository
             return states;
         }
 
-        public Task<Token> FindToken(string tokenId)
+        public async Task<Token> FindToken(string tokenId)
         {
-            throw new NotImplementedException();
+            _logger.Log(LogLevel.Information, "Searching Token in Database");
+            _logger.Log(LogLevel.Debug, "Id: {tokenId}", tokenId);
+            var existing = await _dbContext.Tokens.FindAsync(tokenId);
+
+            if (existing == null)
+            {
+                _logger.Log(LogLevel.Error, "Token {tokenId} does not exist in Database", tokenId);
+                throw new ArgumentException("Token does not exist");
+            }
+
+            _logger.Log(LogLevel.Debug, "Token found");
+
+            return existing;
         }
 
         public async Task<int> SaveToken(Token token)
@@ -68,9 +79,34 @@ namespace Chatbot_in.Infrastructure.HetznerDbRepository
             return states;
         }
 
-        public Task<int> UpdateLastUse(string tokenId)
+        public async Task<int> UpdateLastUse(string tokenId)
         {
-            throw new NotImplementedException();
+            var existing = await FindToken(tokenId);
+
+            _logger.Log(LogLevel.Information, "Updating Token {states}", tokenId);
+
+            Token newToken = new Token
+            {
+                TokenId = existing.TokenId,
+                CreatedAt = existing.CreatedAt,
+                LastUse = DateTime.Now
+
+            };
+
+            _dbContext.Entry(existing).CurrentValues.SetValues(newToken);
+
+            int states =await _dbContext.SaveChangesAsync();
+
+            if (states == 0)
+            {
+                _logger.Log(LogLevel.Warning, "0 Rows saved in Database");
+            }
+            else
+            {
+                _logger.Log(LogLevel.Debug, "Token updated, {states} rows affected", states);
+            }
+
+            return states;
         }
     }
 }
