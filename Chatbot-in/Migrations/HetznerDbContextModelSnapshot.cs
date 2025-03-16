@@ -34,10 +34,6 @@ namespace Chatbot_in.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("OwnerToken")
                         .IsRequired()
                         .HasColumnType("longtext");

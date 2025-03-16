@@ -1,5 +1,6 @@
 ﻿using Chatbot_in.Domain.Models;
 using Chatbot_in.Domain.Repositories;
+using Chatbot_in.Domain.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatbot_in.Controllers;
@@ -12,20 +13,23 @@ public class MainController : ControllerBase
 
     private readonly ILogger<MainController> _logger;
     private readonly ITokenRepository _tokenRepository;
- 
+    private readonly IFileHandlingTemporary _fileHandling;
+    private readonly IContextFileInfoRepository _contextFileInfoRepository;
 
-    public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository)
+
+    public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository)
     {
         _logger = logger;
         _tokenRepository = tokenRepository;
+        _fileHandling = fileHandling;   
+        _contextFileInfoRepository = contextFileInfoRepository;
     }
 
     [HttpGet("token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<Token>> GetToken()
     {
-        _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
-
+        _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");       
 
         Token t = new Token
         {
@@ -54,6 +58,37 @@ public class MainController : ControllerBase
     public async Task<ActionResult<string>> PostFile()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.PostFile");
+
+        byte[] data;
+        using (var ms = new MemoryStream(2048))
+        {
+            await Request.Body.CopyToAsync(ms);
+            data = ms.ToArray();
+        }
+
+        string? filename = Request.Headers["Filename"];
+        string? ownerToken = Request.Headers["OwnerToken"];
+
+        //TODO: Owner Token verification
+        if (ownerToken == null)
+            return BadRequest("Bad Owner Token!");
+
+
+        if (filename == null)
+            return BadRequest("Filename missing!");
+
+        ContextFileInfo? fileInfo = await _fileHandling.SaveFile(filename, ownerToken, data);
+
+        if(fileInfo == null)
+        {
+            return base.Problem("Something went wrong with saving the file. (Don't) contact the Administor for further information.");
+        }
+
+        if (await _contextFileInfoRepository.SaveFile(fileInfo) == 0)
+        {
+            return base.Problem("Something went wrong with saving the fileinfo. (Don't) contact the Administor for further information.");
+        }
+        
         return Ok("File Uploaded! (Not really)");
     }
 
