@@ -44,14 +44,11 @@ builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
 );
 
-
 builder.Services.AddScoped<ITokenRepository, HetznerDbTokenRepository>();
 builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoRepository>();
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
 
-
 var app = builder.Build();
-
 
 app.UseHttpLogging();
 app.UseCors(MyAllowSpecificOrigins);
