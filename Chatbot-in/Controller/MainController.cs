@@ -43,14 +43,16 @@ public class MainController : ControllerBase
         return Ok(t);
     }
 
-    [HttpGet("files")]
+    [HttpGet("files/{token}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
+    public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles(string token)
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetFiles");
         //Get Fileinfos from Database
 
-        return Ok();
+        var files = await _contextFileInfoRepository.GetFiles(token);
+
+        return Ok(files);
     }
 
     [HttpPost("upload")]
@@ -89,7 +91,7 @@ public class MainController : ControllerBase
             return base.Problem("Something went wrong with saving the fileinfo. (Don't) contact the Administor for further information.");
         }
         
-        return Ok("File Uploaded! (Not really)");
+        return Ok("File Uploaded!");
     }
 
     [HttpDelete("delete")]
