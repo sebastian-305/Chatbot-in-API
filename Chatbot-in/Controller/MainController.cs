@@ -91,7 +91,7 @@ public class MainController : ControllerBase
             return base.Problem("Something went wrong with saving the fileinfo. (Don't) contact the Administor for further information.");
         }
         
-        return Ok("File Uploaded!");
+        return Ok();
     }
 
     [HttpDelete("delete")]
