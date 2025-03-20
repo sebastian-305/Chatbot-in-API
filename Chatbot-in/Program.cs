@@ -1,4 +1,5 @@
 using Chatbot_in.Domain.Repositories;
+using Chatbot_in.Domain.Service;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +38,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Register GeminiService
+builder.Services.AddSingleton<GeminiService>();
 
 builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
