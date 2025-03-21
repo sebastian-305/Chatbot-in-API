@@ -1,8 +1,13 @@
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
+using Chatbot_in.Infrastructure.IdentityDbRepository;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
+using Chatbot_in.Domain.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +50,20 @@ builder.Services.AddSingleton<GeminiService>();
 builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
 );
+
+builder.Services.AddDbContext<IdentityDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+}).AddEntityFrameworkStores<IdentityDbContext>();
 
 builder.Services.AddScoped<ITokenRepository, HetznerDbTokenRepository>();
 
