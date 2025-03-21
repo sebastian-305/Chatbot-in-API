@@ -34,5 +34,24 @@ namespace Chatbot_in.Domain.Service
 
             return responseString;
         }
+        public async Task<string> ChatWithAI(string userMessage, string documentContent)
+        {
+            var requestBody = new
+            {
+                model = "gemini-1.5-flash",
+                prompt = new
+                {
+                    text = $"User: {userMessage}\nDocument:\n{documentContent}\nAI:"
+                }
+            };
+
+            var jsonContent = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateText?key={_apiKey}", content);
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            return responseString;
+        }
     }
 }

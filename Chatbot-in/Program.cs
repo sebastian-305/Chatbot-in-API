@@ -1,7 +1,6 @@
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
-using Chatbot_in.Infrastructure.IdentityDbRepository;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Chatbot_in.Domain.Identity;
