@@ -21,34 +21,40 @@ public class MainController : ControllerBase
     {
         _logger = logger;
         _tokenRepository = tokenRepository;
-        _fileHandling = fileHandling;   
+        _fileHandling = fileHandling;
         _contextFileInfoRepository = contextFileInfoRepository;
     }
 
+    //Will be replaced with JWT-Authentification
     [HttpGet("token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<Token>> GetToken()
     {
-        _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");       
+        _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
 
         Token t = new Token
         {
             TokenId = "Token" + Random.Shared.Next(500),
             CreatedAt = DateTime.Now,
             LastUse = DateTime.Now
-          
+
         };
 
         await _tokenRepository.SaveToken(t);
-        return Ok(t);
+        return base.Ok(t);
     }
 
-    [HttpGet("files/{token}")]
+    //Token has to be replaced with username
+    [HttpGet("files")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles(string token)
+    public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetFiles");
         //Get Fileinfos from Database
+
+        string? token = Request.Headers["token"];
+        if (token == null)
+            return BadRequest("Bad Owner Token!");
 
         var files = await _contextFileInfoRepository.GetFiles(token);
 
@@ -69,19 +75,20 @@ public class MainController : ControllerBase
         }
 
         string? filename = Request.Headers["Filename"];
-        string? ownerToken = Request.Headers["OwnerToken"];
+        string? token = Request.Headers["OwnerToken"];
 
         //TODO: Owner Token verification
-        if (ownerToken == null)
+        if (token == null)
             return BadRequest("Bad Owner Token!");
 
 
         if (filename == null)
             return BadRequest("Filename missing!");
 
-        ContextFileInfo? fileInfo = await _fileHandling.SaveFile(filename, ownerToken, data);
+        //ownerToken will be replaced with Username in the future
+        ContextFileInfo? fileInfo = await _fileHandling.SaveFile(token, filename, data);
 
-        if(fileInfo == null)
+        if (fileInfo == null)
         {
             return base.Problem("Something went wrong with saving the file. (Don't) contact the Administor for further information.");
         }
@@ -90,8 +97,8 @@ public class MainController : ControllerBase
         {
             return base.Problem("Something went wrong with saving the fileinfo. (Don't) contact the Administor for further information.");
         }
-        
-        return Ok();
+
+        return Created();
     }
 
     [HttpDelete("delete")]
@@ -99,8 +106,37 @@ public class MainController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<string>> DeleteFile()
     {
-        _logger.Log(LogLevel.Debug, "Entered MainController.DeleteFile");
-        return Ok("File Deleted! (Not really)");
+        string? filename = Request.Headers["filename"];
+        string? token = Request.Headers["token"];
+
+        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(filename))
+            return base.Problem("Wrong token or filename");
+
+        var files = await _contextFileInfoRepository.GetFiles(token);
+
+        if (files == null)
+        {
+            _logger.LogWarning("No files found for {token}", token);
+            return base.NotFound();
+        }
+
+        ContextFileInfo file = files.ToList().Where(f => f.FileName.Equals(filename)).ToArray().First();
+
+        if (file == null)
+            return base.NotFound();
+
+        await _contextFileInfoRepository.DeleteFile(file);
+
+        var success = await _fileHandling.DeleteFile(token, filename);
+
+        if (!success)
+        {
+            _logger.LogWarning($"Failed to delete file: {filename}");
+            return base.BadRequest();
+        }
+
+        _logger.LogInformation("File deleted");
+        return Ok("File Deleted!");
     }
 
     [HttpPost("chat")]

@@ -10,36 +10,74 @@ namespace Chatbot_in.Infrastructure
     public class HetznerFileHandling : IFileHandlingTemporary
     {
         private readonly ILogger<HetznerFileHandling> _logger;
-        private readonly IConfiguration _config;
+        private readonly AsyncFtpClient _ftpClient;
         public HetznerFileHandling(ILogger<HetznerFileHandling> logger, IConfiguration config)
         {
             _logger = logger;
-            _config = config;
+            _ftpClient = new AsyncFtpClient(config["ftp:url"], config["ftp:user"], config["ftp:password"]);
         }
 
-        public Task DeleteFile(string path)
+        public async Task<bool> DeleteFile(string owner, string filename)
         {
-            throw new NotImplementedException();
+            bool success = true;
+            _logger.Log(LogLevel.Information, "Deleting File");
+            try
+            {
+                await _ftpClient.DeleteFile($"/{owner}/{filename}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{Error}", ex.Message);
+                await _ftpClient.Disconnect();
+                success =  false;
+            }
+
+            var list = await _ftpClient.GetListing($"/{owner}");
+
+            if (list == null || list.Length == 0)
+            {
+                await _ftpClient.DeleteDirectory($"/{owner}");
+            }
+
+            await _ftpClient.Disconnect();
+            return success;
         }
 
-        public Task LoadFile(string path)
+        public async Task<string[]> LoadFile(string owner, string filename)
         {
-            throw new NotImplementedException();
+            _logger.Log(LogLevel.Information, "Loading File");
+
+            await _ftpClient.AutoConnect();
+
+            try
+            {
+                if (await _ftpClient.DownloadFile(Directory.GetCurrentDirectory() + @"\" + filename, $"/{owner}/{filename}") != FtpStatus.Success)
+                {
+                    throw new Exception("Error in downloading File");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{Error}", ex.Message);
+                await _ftpClient.Disconnect();
+                return [];
+            }
+            await _ftpClient.Disconnect();
+
+            return await LocalFileHandling.LoadAndDeleteTextFile(filename);
         }
 
-        public async Task<ContextFileInfo?> SaveFile(string filename, string ownerToken, byte[] binary)
+        public async Task<ContextFileInfo?> SaveFile(string owner, string filename, byte[] binary)
         {
             _logger.Log(LogLevel.Information, "Saving File");
 
             await LocalFileHandling.Save(filename, binary);
 
-            var client = new AsyncFtpClient(_config["ftp:url"], _config["ftp:user"], _config["ftp:password"]);
-
             // connect to the server and automatically detect working FTP settings
-            await client.AutoConnect();
+            await _ftpClient.AutoConnect();
 
             // get a list of files and directories in the "/htdocs" folder
-            foreach (FtpListItem item in await client.GetListing("/"))
+            foreach (FtpListItem item in await _ftpClient.GetListing("/"))
             {
 
                 // if this is a file
@@ -47,24 +85,24 @@ namespace Chatbot_in.Infrastructure
                 {
 
                     // get the file size
-                    long size = await client.GetFileSize(item.FullName);
+                    long size = await _ftpClient.GetFileSize(item.FullName);
 
                     // calculate a hash for the file on the server side (default algorithm)
-                    FtpHash hash = await client.GetChecksum(item.FullName);
+                    FtpHash hash = await _ftpClient.GetChecksum(item.FullName);
                 }
 
                 // get modified date/time of the file or folder
-                DateTime time = await client.GetModifiedTime(item.FullName);
+                DateTime time = await _ftpClient.GetModifiedTime(item.FullName);
             }
 
             // check if a folder exists
-            if (!await client.DirectoryExists($"/{ownerToken}/"))
+            if (!await _ftpClient.DirectoryExists($"/{owner}/"))
             {
-                await client.CreateDirectory($"/{ownerToken}/");
+                await _ftpClient.CreateDirectory($"/{owner}/");
             }
 
             // upload a file
-            var sucess = await client.UploadFile(Directory.GetCurrentDirectory() + @"\" + filename, $"/{ownerToken}/{filename}");
+            var sucess = await _ftpClient.UploadFile(Directory.GetCurrentDirectory() + @"\" + filename, $"/{owner}/{filename}");
 
             try
             {
@@ -80,7 +118,7 @@ namespace Chatbot_in.Infrastructure
             //await client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpRemoteExists.Overwrite, false, FtpVerify.Retry);
 
             // disconnect! good bye!
-            await client.Disconnect();
+            await _ftpClient.Disconnect();
 
             if (sucess != FtpStatus.Success)
             {
@@ -90,16 +128,24 @@ namespace Chatbot_in.Infrastructure
             return new ContextFileInfo()
             {
                 FileName = filename,
-                OwnerToken = ownerToken
+                OwnerToken = owner
             };
         }
-
 
         static class LocalFileHandling
         {
             public async static Task Save(string filename, byte[] binary)
             {
-                await File.WriteAllBytesAsync(Directory.GetCurrentDirectory() + @"\" + filename, binary);                
+                await File.WriteAllBytesAsync(Directory.GetCurrentDirectory() + @"\" + filename, binary);
+            }
+
+            public async static Task<string[]> LoadAndDeleteTextFile(string filename)
+            {
+                var data = await File.ReadAllLinesAsync(Directory.GetCurrentDirectory() + @"\" + filename);
+
+                File.Delete(Directory.GetCurrentDirectory() + @"\" + filename);
+
+                return data;
             }
 
         }

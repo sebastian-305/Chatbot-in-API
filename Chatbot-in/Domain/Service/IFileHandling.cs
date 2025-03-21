@@ -4,10 +4,11 @@ namespace Chatbot_in.Domain.Service;
 
 public interface IFileHandlingTemporary
 {
-    Task<ContextFileInfo?> SaveFile(string filename, string ownerToken, byte[] binary);
+    Task<ContextFileInfo?> SaveFile(string owner, string filename, byte[] binary);
 
-    Task LoadFile(string path);
+    Task<string[]> LoadFile(string owner, string filename);
 
-    Task DeleteFile(string path);
-    
+    Task<bool> DeleteFile(string owner, string filename);
+
+
 }
