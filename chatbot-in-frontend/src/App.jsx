@@ -1,30 +1,35 @@
-import { useState } from 'react'
+import { UploadFile } from  "./UploadFile"
+import { FileList } from "./FileList"
+import { ChatBot } from "./ChatBot"
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <h1>Mockup Frontend</h1>
-      <p className="read-the-docs">
+
+    return (
+        <>
+            <h1>Mockup Frontend</h1>
+            <p className="read-the-docs">
         //Todo
-          </p>
+            </p>
 
-          <button onClick={getMockAnswer}>Get Token</button>
-          <button onClick={getMockAnswer2}>Upload File</button>
-          <button onClick={getMockAnswer3}>Get Files</button>
-          <button onClick={getMockAnswer4}>Chat</button>
-          <div id="answer"></div>
-
-    </>
-  )
+            <button onClick={getMockAnswer}>Get Token</button>
+            <button onClick={getMockAnswer2}>Upload File</button>
+            <button onClick={getMockAnswer3}>Get Files</button>
+            <button onClick={getMockAnswer4}>Chat</button>
+            <div id="answer"></div>
+            <hr></hr>
+            <UploadFile></UploadFile>
+            <FileList></FileList>
+            <ChatBot></ChatBot>
+        </>
+    )
 
     function getMockAnswer() {
         var request = new Request('http://localhost:5114/token', {
-            method: 'GET'  
-        });        
-        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);        
+            method: 'GET'
+        });
+        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
     }
 
     function getMockAnswer2() {
