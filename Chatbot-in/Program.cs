@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Chatbot_in.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,9 +55,10 @@ builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
 );
 
-builder.Services.AddDbContext<IdentityDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-
+var connectionString = builder.Configuration.GetConnectionString("dbconnection");
+builder.Services.AddDbContext<StarterDbContext>(
+options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+);
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -63,13 +68,63 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
-}).AddEntityFrameworkStores<IdentityDbContext>();
+}).AddEntityFrameworkStores<StarterDbContext>();
+
+builder.Services.AddAuthentication(a =>
+{
+    a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    a.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(
+    Encoding.ASCII.GetBytes(
+    builder.Configuration.GetSection("JwtSettings")["Secret"]!
+    )),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        RequireExpirationTime = false,
+        ValidateLifetime = true
+    };
+});
+
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer "
+    });
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+{
+{
+new OpenApiSecurityScheme
+{
+Reference = new OpenApiReference
+{
+Type = ReferenceType.SecurityScheme,
+Id = "Bearer"
+}
+}, new string[] {}
+}
+});
+});
+
+
 
 builder.Services.AddScoped<ITokenRepository, HetznerDbTokenRepository>();
 
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpLogging();
 app.UseCors(MyAllowSpecificOrigins);
@@ -82,8 +137,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
