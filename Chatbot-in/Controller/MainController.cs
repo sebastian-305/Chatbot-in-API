@@ -148,4 +148,13 @@ public class MainController : ControllerBase
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
         return Ok("Beep Boop I'm a bot!");
     }
+
+    [HttpPost("analyze")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<string>> PostAnalyze()
+    {
+        _logger.Log(LogLevel.Debug, "Entered MainController.Analyze");
+
+        return Ok("Analyzed.");
+    }
 }
