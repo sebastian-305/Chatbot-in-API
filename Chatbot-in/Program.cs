@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = HttpLoggingFields.RequestMethod
+    | HttpLoggingFields.RequestHeaders
     | HttpLoggingFields.RequestPath
     | HttpLoggingFields.RequestBody 
     | HttpLoggingFields.ResponseBody

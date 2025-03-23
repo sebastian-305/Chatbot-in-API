@@ -8,51 +8,13 @@ function App() {
 
     return (
         <>
-            <h1>Mockup Frontend</h1>
-            <p className="read-the-docs">
-        //Todo
-            </p>
-
-            <button onClick={getMockAnswer}>Get Token</button>
-            <button onClick={getMockAnswer2}>Upload File</button>
-            <button onClick={getMockAnswer3}>Get Files</button>
-            <button onClick={getMockAnswer4}>Chat</button>
-            <div id="answer"></div>
+            <h1>Chatbot:in</h1>  
             <hr></hr>
             <UploadFile></UploadFile>
             <FileList></FileList>
             <ChatBot></ChatBot>
         </>
     )
-
-    function getMockAnswer() {
-        var request = new Request('http://localhost:5114/token', {
-            method: 'GET'
-        });
-        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
-    }
-
-    function getMockAnswer2() {
-        var request = new Request('http://localhost:5114/upload?token=salkfdjq34jk', {
-            method: 'POST'
-        });
-        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
-    }
-
-
-    function getMockAnswer3() {
-        var request = new Request('http://localhost:5114/files?token=salkfdjq34jk', {
-            method: 'GET'
-        });
-        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
-    }
-
-    function getMockAnswer4() {
-        var request = new Request('http://localhost:5114/chat', {
-            method: 'POST'
-        });
-        fetch(request).then(response => response.text()).then(text => document.querySelector("#answer").innerHTML = text);
-    }
 }
 
 export default App

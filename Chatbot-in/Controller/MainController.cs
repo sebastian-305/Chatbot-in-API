@@ -25,24 +25,24 @@ public class MainController : ControllerBase
         _contextFileInfoRepository = contextFileInfoRepository;
     }
 
-    //Will be replaced with JWT-Authentification
-    [HttpGet("token")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<Token>> GetToken()
-    {
-        _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
+    ////Will be replaced with JWT-Authentification
+    //[HttpGet("token")]
+    //[ProducesResponseType(StatusCodes.Status200OK)]
+    //public async Task<ActionResult<Token>> GetToken()
+    //{
+    //    _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
 
-        Token t = new Token
-        {
-            TokenId = "Token" + Random.Shared.Next(500),
-            CreatedAt = DateTime.Now,
-            LastUse = DateTime.Now
+    //    Token t = new Token
+    //    {
+    //        TokenId = "Token" + Random.Shared.Next(500),
+    //        CreatedAt = DateTime.Now,
+    //        LastUse = DateTime.Now
 
-        };
+    //    };
 
-        await _tokenRepository.SaveToken(t);
-        return base.Ok(t);
-    }
+    //    await _tokenRepository.SaveToken(t);
+    //    return base.Ok(t);
+    //}
 
     //Token has to be replaced with username
     [HttpGet("files")]
@@ -53,8 +53,10 @@ public class MainController : ControllerBase
         //Get Fileinfos from Database
 
         string? token = Request.Headers["token"];
-        if (token == null)
+        if (token == null){
+            _logger.LogWarning("No token found");
             return BadRequest("Bad Owner Token!");
+        }
 
         var files = await _contextFileInfoRepository.GetFiles(token);
 
