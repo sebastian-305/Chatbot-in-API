@@ -54,10 +54,9 @@ builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
 );
 
-var connectionString = builder.Configuration.GetConnectionString("dbconnection");
-builder.Services.AddDbContext<StarterDbContext>(
-options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-);
+//builder.Services.AddDbContext<AuthDbContext>(
+//options => options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
+//);
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -67,7 +66,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
-}).AddEntityFrameworkStores<StarterDbContext>();
+}).AddEntityFrameworkStores<HetznerDbContext>();
 
 builder.Services.AddAuthentication(a =>
 {
