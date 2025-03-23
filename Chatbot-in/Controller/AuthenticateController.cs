@@ -13,12 +13,14 @@ namespace Chatbot_in.Controller
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IConfiguration configuration;
         private readonly ITokenService tokenService;
+        private readonly ILogger<AuthenticateController> _logger;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, ITokenService tokenService)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, ITokenService tokenService, ILogger<AuthenticateController> logger)
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.tokenService = tokenService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -38,28 +40,36 @@ namespace Chatbot_in.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
-            var userExists = await userManager.FindByNameAsync(model.Username);
-            if (userExists != null)
-                return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = "User already exists!" });
-
-            ApplicationUser user = new ApplicationUser()
+            try
             {
-                Email = model.Email,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = model.Username
-            };
-            IdentityResult result = await userManager.CreateAsync(user, model.Password);
+                var userExists = await userManager.FindByNameAsync(model.Username);
+                if (userExists != null)
+                    return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = "User already exists!" });
 
-            foreach (var er in result.Errors)
-            {
-                Console.WriteLine(er);
+                ApplicationUser user = new ApplicationUser()
+                {
+                    Email = model.Email,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    UserName = model.Username
+                };
+                IdentityResult result = await userManager.CreateAsync(user, model.Password);
+
+                foreach (var er in result.Errors)
+                {
+                    Console.WriteLine(er);
+                }
+
+                if (!result.Succeeded)
+                    return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+                await userManager.AddToRoleAsync(user, "User");
+
+                return Ok(new ResponseDTO { Status = "Success", Message = "User created successfully!" });
             }
-
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-            await userManager.AddToRoleAsync(user, "User");
-
-            return Ok(new ResponseDTO { Status = "Success", Message = "User created successfully!" });
+            catch (Exception ex)
+            {
+                _logger.LogError("{e}",ex.Message);
+                return StatusCode(500);
+            }
         }
 
     }

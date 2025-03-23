@@ -1,4 +1,4 @@
-using Chatbot_in.Domain.Repositories;
+﻿using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
 using Microsoft.AspNetCore.HttpLogging;
@@ -21,10 +21,10 @@ builder.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = HttpLoggingFields.RequestMethod
     | HttpLoggingFields.RequestPath
-    | HttpLoggingFields.RequestBody 
+    | HttpLoggingFields.RequestBody
     | HttpLoggingFields.ResponseBody
     | HttpLoggingFields.ResponseStatusCode;
-    logging.ResponseBodyLogLimit = 256;
+    logging.ResponseBodyLogLimit = 384;
     //| HttpLoggingFields.Response;
 });
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -110,13 +110,15 @@ Type = ReferenceType.SecurityScheme,
 Id = "Bearer"
 }
 }, new string[] {}
-}
+ }
 });
 });
 
 
 
 builder.Services.AddScoped<ITokenRepository, HetznerDbTokenRepository>();
+
+builder.Services.AddScoped<ITokenService, JWTService>();
 
 
 var app = builder.Build();
@@ -133,6 +135,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//SeedDB.Initialize(
+//    app.Services.GetRequiredService<IServiceProvider>().CreateScope().ServiceProvider​
+//    );
 
 app.UseHttpsRedirection();
 
