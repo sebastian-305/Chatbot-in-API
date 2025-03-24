@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chatbot_in.Controller
 {
-    [Route("api/[controller]")]
+    [Route("/")]
     [ApiController]
     public class AuthenticateController : ControllerBase
     {
