@@ -76,8 +76,8 @@ public class MainController : ControllerBase
             data = ms.ToArray();
         }
 
-        string? filename = Request.Headers["Filename"];
-        string? token = Request.Headers["OwnerToken"];
+        string? filename = Request.Headers["filename"];
+        string? token = Request.Headers["token"];
 
         //TODO: Owner Token verification
         if (token == null)
