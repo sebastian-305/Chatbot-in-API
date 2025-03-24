@@ -21,6 +21,8 @@ namespace Chatbot_in.Infrastructure
         {
             bool success = true;
             _logger.Log(LogLevel.Information, "Deleting File");
+            await _ftpClient.AutoConnect();
+         
             try
             {
                 await _ftpClient.DeleteFile($"/{owner}/{filename}");

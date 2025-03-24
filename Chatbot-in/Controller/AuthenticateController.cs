@@ -10,16 +10,16 @@ namespace Chatbot_in.Controller
     [ApiController]
     public class AuthenticateController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly IConfiguration configuration;
-        private readonly ITokenService tokenService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
+        private readonly ITokenService _tokenService;
         private readonly ILogger<AuthenticateController> _logger;
 
         public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, ITokenService tokenService, ILogger<AuthenticateController> logger)
         {
-            this.userManager = userManager;
-            this.configuration = configuration;
-            this.tokenService = tokenService;
+            _userManager = userManager;
+            _configuration = configuration;
+            _tokenService = tokenService;
             _logger = logger;
         }
 
@@ -27,10 +27,10 @@ namespace Chatbot_in.Controller
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
-            var user = await userManager.FindByNameAsync(model.Username);
-            if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
+            var user = await _userManager.FindByNameAsync(model.Username);
+            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                return Ok(await tokenService.CreateTokenAsync(user));
+                return Ok(await _tokenService.CreateTokenAsync(user));
             }
             return Unauthorized();
         }
@@ -42,7 +42,7 @@ namespace Chatbot_in.Controller
         {
             try
             {
-                var userExists = await userManager.FindByNameAsync(model.Username);
+                var userExists = await _userManager.FindByNameAsync(model.Username);
                 if (userExists != null)
                     return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = "User already exists!" });
 
@@ -52,22 +52,19 @@ namespace Chatbot_in.Controller
                     SecurityStamp = Guid.NewGuid().ToString(),
                     UserName = model.Username
                 };
-                IdentityResult result = await userManager.CreateAsync(user, model.Password);
+                IdentityResult result = await _userManager.CreateAsync(user, model.Password);
 
-                foreach (var er in result.Errors)
-                {
-                    Console.WriteLine(er);
-                }
-
-                if (!result.Succeeded)
-                    return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = "User creation failed! Please check user details and try again." });
-                await userManager.AddToRoleAsync(user, "User");
+                if (!result.Succeeded){
+                    foreach (var error in result.Errors)
+                        _logger.LogError("{code}: {message}",error.Code, error.Description);
+                    return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO { Status = "Error", Message = result.Errors.First().Description});
+}                await _userManager.AddToRoleAsync(user, "User");
 
                 return Ok(new ResponseDTO { Status = "Success", Message = "User created successfully!" });
             }
             catch (Exception ex)
             {
-                _logger.LogError("{e}",ex.Message);
+                _logger.LogCritical("{e}",ex.Message);
                 return StatusCode(500);
             }
         }

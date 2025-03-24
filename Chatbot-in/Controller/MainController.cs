@@ -10,12 +10,10 @@ namespace Chatbot_in.Controllers;
 [Route("/")]
 public class MainController : ControllerBase
 {
-
     private readonly ILogger<MainController> _logger;
     private readonly ITokenRepository _tokenRepository;
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
-
 
     public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository)
     {
@@ -108,11 +106,16 @@ public class MainController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<string>> DeleteFile()
     {
+        _logger.LogInformation("Entering MainController.DeleteFile()");
         string? filename = Request.Headers["filename"];
         string? token = Request.Headers["token"];
+        _logger.LogDebug("Filename: {file}, token: {token}", filename, token);
 
-        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(filename))
+
+        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(filename)){
+            _logger.LogWarning("Wrong token or filename");
             return base.Problem("Wrong token or filename");
+        }
 
         var files = await _contextFileInfoRepository.GetFiles(token);
 
