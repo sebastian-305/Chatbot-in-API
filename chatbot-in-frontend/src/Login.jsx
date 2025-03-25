@@ -21,7 +21,13 @@ export function Login() {
                 "password": event.target.password.value
             })
         });
-        fetch(request).then(response => response.json()).then(text => console.log(text));
+        fetch(request).then(response => response.json()).then(text => {
+            console.log(text);
+            console.log(text.token);
+            console.log(text.expiration);
+            document.cookie = `session=Bearer ${text.token}; expires=${text.expiration}`;
+
+        });
     }
 
 

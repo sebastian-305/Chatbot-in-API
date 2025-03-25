@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Chatbot_in.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -72,6 +71,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireLowercase = false;
 }).AddEntityFrameworkStores<HetznerDbContext>();
 
+var secret = builder.Configuration.GetSection("JwtSettings")["Secret"]!;
+Console.WriteLine("Programcs Secret: " + secret);
+
 builder.Services.AddAuthentication(a =>
 {
     a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -79,11 +81,13 @@ builder.Services.AddAuthentication(a =>
     a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(opt =>
 {
+    opt.IncludeErrorDetails = true;
+    
     opt.TokenValidationParameters = new TokenValidationParameters
     {
         IssuerSigningKey = new SymmetricSecurityKey(
     Encoding.ASCII.GetBytes(
-    builder.Configuration.GetSection("JwtSettings")["Secret"]!
+    secret
     )),
         ValidateIssuer = false,
         ValidateAudience = false,
@@ -104,18 +108,18 @@ builder.Services.AddSwaggerGen(opt =>
         Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer "
     });
     opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
-{
-new OpenApiSecurityScheme
-{
-Reference = new OpenApiReference
-{
-Type = ReferenceType.SecurityScheme,
-Id = "Bearer"
-}
-}, new string[] {}
- }
-});
+    {
+        {
+            new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                 }, new string[] {}
+        }
+    });
 });
 
 
@@ -144,7 +148,7 @@ if (app.Environment.IsDevelopment())
 //    app.Services.GetRequiredService<IServiceProvider>().CreateScope().ServiceProvider​
 //    );
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.MapControllers();
 

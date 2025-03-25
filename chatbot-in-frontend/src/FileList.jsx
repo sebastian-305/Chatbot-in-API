@@ -6,13 +6,13 @@ export function FileList() {
     useEffect(() => {
         const request = new Request('http://localhost:5114/files', {
             method: 'GET',
-            headers: { "token": "asdf" }
+            headers: {
+                "token": "asdf",
+
+            }
         });
         fetch(request).then(response => response.json()).then(text => { setFiles(text.map(e => e.fileName)) });
     }, [])
-
-
-
 
     return <ul>
         {files.map(create_list_element)}

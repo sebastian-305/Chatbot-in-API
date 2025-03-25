@@ -2,6 +2,7 @@
 using Chatbot_in.Domain.Models;
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatbot_in.Controllers;
@@ -12,41 +13,23 @@ namespace Chatbot_in.Controllers;
 public class MainController : ControllerBase
 {
     private readonly ILogger<MainController> _logger;
-    private readonly ITokenRepository _tokenRepository;
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
     private readonly GeminiService _geminiService;
 
-    public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService)
+    public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService)
     {
         _logger = logger;
-        _tokenRepository = tokenRepository;
+    
         _fileHandling = fileHandling; //Speichert, lädt oder löscht Dateien im Dateisystem von Hetzner
         _contextFileInfoRepository = contextFileInfoRepository; //Speichert Dateiname und Username in Hetzner-Datenbank
         _geminiService = geminiService;
     }
 
-    ////Will be replaced with JWT-Authentification
-    //[HttpGet("token")]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //public async Task<ActionResult<Token>> GetToken()
-    //{
-    //    _logger.Log(LogLevel.Debug, "Entered MainController.GetToken");
-
-    //    Token t = new Token
-    //    {
-    //        TokenId = "Token" + Random.Shared.Next(500),
-    //        CreatedAt = DateTime.Now,
-    //        LastUse = DateTime.Now
-
-    //    };
-
-    //    await _tokenRepository.SaveToken(t);
-    //    return base.Ok(t);
-    //}
 
     //Token has to be replaced with username
     [HttpGet("files")]
+    [Authorize(Roles = "User")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
