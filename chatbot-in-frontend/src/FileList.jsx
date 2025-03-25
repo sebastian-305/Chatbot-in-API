@@ -4,11 +4,14 @@ export function FileList() {
     const [files, setFiles] = useState(["first.txt", "second.txt"]);
 
     useEffect(() => {
+        var cookie = getCookie("session");
+        console.log("Cookie: " + cookie);
+
         const request = new Request('http://localhost:5114/files', {
             method: 'GET',
             headers: {
                 "token": "asdf",
-
+                "Authorization": cookie
             }
         });
         fetch(request).then(response => response.json()).then(text => { setFiles(text.map(e => e.fileName)) });
@@ -42,4 +45,19 @@ export function FileList() {
         );
     }
 
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 }
