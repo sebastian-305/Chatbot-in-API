@@ -1,4 +1,5 @@
-﻿using Chatbot_in.Domain.Models;
+﻿using Chatbot_in.Controller;
+using Chatbot_in.Domain.Models;
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,15 @@ public class MainController : ControllerBase
     private readonly ITokenRepository _tokenRepository;
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
+    private readonly GeminiService _geminiService;
 
-    public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository)
+    public MainController(ILogger<MainController> logger, ITokenRepository tokenRepository, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService)
     {
         _logger = logger;
         _tokenRepository = tokenRepository;
-        _fileHandling = fileHandling;
-        _contextFileInfoRepository = contextFileInfoRepository;
+        _fileHandling = fileHandling; //Speichert, lädt oder löscht Dateien im Dateisystem von Hetzner
+        _contextFileInfoRepository = contextFileInfoRepository; //Speichert Dateiname und Username in Hetzner-Datenbank
+        _geminiService = geminiService;
     }
 
     ////Will be replaced with JWT-Authentification
@@ -67,11 +70,11 @@ public class MainController : ControllerBase
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.PostFile");
 
-        byte[] data;
-        using (var ms = new MemoryStream(2048))
+        byte[] data; //Hier werden die Daten der Datei gespeichert
+        using (var ms = new MemoryStream(2048)) 
         {
-            await Request.Body.CopyToAsync(ms);
-            data = ms.ToArray();
+            await Request.Body.CopyToAsync(ms); 
+            data = ms.ToArray();//Daten der Datei werden im Byte-Array gespeichert
         }
 
         string? filename = Request.Headers["filename"];
@@ -98,7 +101,7 @@ public class MainController : ControllerBase
             return base.Problem("Something went wrong with saving the fileinfo. (Don't) contact the Administor for further information.");
         }
 
-        return Created();
+        return Accepted();
     }
 
     [HttpDelete("delete")]
@@ -156,8 +159,7 @@ public class MainController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<string>> PostAnalyze()
     {
-        _logger.Log(LogLevel.Debug, "Entered MainController.Analyze");
-
-        return Ok("Analyzed.");
+        string response = await _geminiService.ChatWithAI("Gib mir eine Primzahl","");
+        return Ok(new { response });
     }
 }

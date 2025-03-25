@@ -6,26 +6,20 @@ export function FileList() {
     useEffect(() => {
         const request = new Request('http://localhost:5114/files', {
             method: 'GET',
-            //headers: new Headers().append("token", "asdf")
-            headers: {"token": "asdf"}
+            headers: { "token": "asdf" }
         });
-        fetch(request).then(response => response.json()).then(text => {setFiles(text.map(e=>e.fileName)) });
+        fetch(request).then(response => response.json()).then(text => { setFiles(text.map(e => e.fileName)) });
     }, [])
-    
-        
-    
+
+
+
 
     return <ul>
-        {files.map((file, index) =>
-        (<li key={index} >
-            <input type="checkbox" id={"file" + index}></input>
-            <label htmlFor={"file" + index} id={"file"+index+"label" }>{file}</label>
-            <button type="button" onClick={()=>delete_file(index)}>delete</button>
-        </li>))}
+        {files.map(create_list_element)}
     </ul>;
 
     function delete_file(index) {
-        const filename = document.getElementById(`file${index}label`).innerHTML;
+        const filename = document.getElementById(`label-file${index}`).innerHTML;
 
         const request = new Request('http://localhost:5114/delete', {
             method: 'DELETE',
@@ -35,8 +29,17 @@ export function FileList() {
                 "filename": filename
             }
         });
-
         fetch(request).then(response => response.text()).then(text => console.log(text));
     }
 
- }
+    function create_list_element(filename, index) {
+        return (
+            < li key={index} >
+                <input type="checkbox" id={"checkbox-file" + index}></input>
+                <label htmlFor={"file" + index} id={"label-file" + index}>{filename}</label>
+                <button type="button" onClick={() => delete_file(index)}>delete</button>
+            </li>
+        );
+    }
+
+}

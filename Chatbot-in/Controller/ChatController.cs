@@ -15,6 +15,9 @@ namespace Chatbot_in.Controller
         }
 
         [HttpPost]
+        //public async Task<IActionResult> ChatWithFile([FromBody] ChatRequest chatRequest)
+
+
         public async Task<IActionResult> ChatWithFile([FromBody] ChatRequest chatRequest)
         {
             if (string.IsNullOrEmpty(chatRequest.UserMessage) || string.IsNullOrEmpty(chatRequest.DocumentContent))
