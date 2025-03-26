@@ -122,16 +122,17 @@ public class MainController : ControllerBase
     }
 
     [HttpPost("chat")]
-    public async Task<ActionResult<string>> PostChat()
+    public async Task<ActionResult<string>> PostChat(string prompt)
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
-        return Ok("Beep Boop I'm a bot!");
+        string response = await _geminiService.ChatWithAI(prompt);
+        return Ok(new { response });
     }
 
     [HttpPost("analyze")]
     public async Task<ActionResult<string>> PostAnalyze()
     {
-        string response = await _geminiService.ChatWithAI("Gib mir eine Primzahl", "");
+        string response = await _geminiService.InitializeAi("t");
         return Ok(new { response });
     }
 

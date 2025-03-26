@@ -23,8 +23,10 @@ namespace Chatbot_in.Controller
             if (string.IsNullOrEmpty(chatRequest.UserMessage) || string.IsNullOrEmpty(chatRequest.DocumentContent))
                 return BadRequest("Missing user message or document content");
 
-            string response = await _geminiService.ChatWithAI(chatRequest.UserMessage, chatRequest.DocumentContent);
-            return Ok(new { response });
+            //string response = await _geminiService.ChatWithAI(chatRequest.UserMessage, chatRequest.DocumentContent);
+            //return Ok(new { response });
+
+            return Ok();
         }
     }
 
