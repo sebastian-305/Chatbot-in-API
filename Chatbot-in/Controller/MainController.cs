@@ -129,12 +129,12 @@ public class MainController : ControllerBase
         return Ok(new { response });
     }
 
-    [HttpPost("analyze")]
-    public async Task<ActionResult<string>> PostAnalyze()
-    {
-        string response = await _geminiService.InitializeAi("t");
-        return Ok(new { response });
-    }
+    //[HttpPost("analyze")]
+    //public async Task<ActionResult<string>> PostAnalyze()
+    //{
+    //    string response = await _geminiService.InitializeAi("t");
+    //    return Ok(new { response });
+    //}
 
     private string GetShortUid(HttpRequest request)
     {
