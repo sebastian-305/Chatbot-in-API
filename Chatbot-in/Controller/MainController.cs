@@ -1,5 +1,4 @@
-﻿using Chatbot_in.Controller;
-using Chatbot_in.Domain.Models;
+﻿using Chatbot_in.Domain.Models;
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -20,59 +19,50 @@ public class MainController : ControllerBase
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService)
     {
         _logger = logger;
-    
         _fileHandling = fileHandling; //Speichert, lädt oder löscht Dateien im Dateisystem von Hetzner
         _contextFileInfoRepository = contextFileInfoRepository; //Speichert Dateiname und Username in Hetzner-Datenbank
         _geminiService = geminiService;
     }
 
 
-    //Token has to be replaced with username
+    //Get Fileinfos from Database
     [HttpGet("files")]
     [Authorize(Roles = "User")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetFiles");
-        //Get Fileinfos from Database
+        
+        string short_id = GetShortUid(Request);
 
-        string? token = Request.Headers["token"];
-        if (token == null){
-            _logger.LogWarning("No token found");
-            return BadRequest("Bad Owner Token!");
-        }
-
-        var files = await _contextFileInfoRepository.GetFiles(token);
+        var files = await _contextFileInfoRepository.GetFiles(short_id);
 
         return Ok(files);
     }
 
     [HttpPost("upload")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize(Roles = "User")]
     public async Task<ActionResult<string>> PostFile()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.PostFile");
 
+        string short_id = GetShortUid(Request);
+
         byte[] data; //Hier werden die Daten der Datei gespeichert
-        using (var ms = new MemoryStream(2048)) 
+        using (var ms = new MemoryStream(2048))
         {
-            await Request.Body.CopyToAsync(ms); 
+            await Request.Body.CopyToAsync(ms);
             data = ms.ToArray();//Daten der Datei werden im Byte-Array gespeichert
         }
 
         string? filename = Request.Headers["filename"];
-        string? token = Request.Headers["token"];
 
-        //TODO: Owner Token verification
-        if (token == null)
-            return BadRequest("Bad Owner Token!");
-
+        if (short_id == String.Empty)
+            return BadRequest("Bad Token!");
 
         if (filename == null)
             return BadRequest("Filename missing!");
 
-        //ownerToken will be replaced with Username in the future
-        ContextFileInfo? fileInfo = await _fileHandling.SaveFile(token, filename, data);
+        ContextFileInfo? fileInfo = await _fileHandling.SaveFile(short_id, filename, data);
 
         if (fileInfo == null)
         {
@@ -88,26 +78,27 @@ public class MainController : ControllerBase
     }
 
     [HttpDelete("delete")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Roles = "User")]
     public async Task<ActionResult<string>> DeleteFile()
     {
         _logger.LogInformation("Entering MainController.DeleteFile()");
         string? filename = Request.Headers["filename"];
-        string? token = Request.Headers["token"];
-        _logger.LogDebug("Filename: {file}, token: {token}", filename, token);
+        string short_id = GetShortUid(Request);
+
+        _logger.LogDebug("Filename: {file}, token: {token}", filename, short_id);
 
 
-        if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(filename)){
-            _logger.LogWarning("Wrong token or filename");
+        if (string.IsNullOrWhiteSpace(short_id) || string.IsNullOrWhiteSpace(filename))
+        {
+            _logger.LogWarning("Wrong token {token} or filename {filename}", short_id, filename);
             return base.Problem("Wrong token or filename");
         }
 
-        var files = await _contextFileInfoRepository.GetFiles(token);
+        var files = await _contextFileInfoRepository.GetFiles(short_id);
 
         if (files == null)
         {
-            _logger.LogWarning("No files found for {token}", token);
+            _logger.LogWarning("No files found for {token}", short_id);
             return base.NotFound();
         }
 
@@ -118,7 +109,7 @@ public class MainController : ControllerBase
 
         await _contextFileInfoRepository.DeleteFile(file);
 
-        var success = await _fileHandling.DeleteFile(token, filename);
+        var success = await _fileHandling.DeleteFile(short_id, filename);
 
         if (!success)
         {
@@ -131,7 +122,6 @@ public class MainController : ControllerBase
     }
 
     [HttpPost("chat")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<string>> PostChat()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
@@ -139,10 +129,28 @@ public class MainController : ControllerBase
     }
 
     [HttpPost("analyze")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<string>> PostAnalyze()
     {
-        string response = await _geminiService.ChatWithAI("Gib mir eine Primzahl","");
+        string response = await _geminiService.ChatWithAI("Gib mir eine Primzahl", "");
         return Ok(new { response });
+    }
+
+    private string GetShortUid(HttpRequest request)
+    {
+        try
+        {
+            var userid = request.HttpContext.User.Claims.First(c => c.Type == "sub").Value;
+            _logger.LogDebug("User: {id}", userid);
+
+            string short_id = userid.Split('-').Last() ?? String.Empty;
+
+            _logger.LogDebug("Short uid: {suid}", short_id);
+            return short_id;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return String.Empty;
+        }
     }
 }

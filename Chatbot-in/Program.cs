@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Chatbot_in.Domain.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,9 +58,6 @@ builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
 );
 
-//builder.Services.AddDbContext<AuthDbContext>(
-//options => options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
-//);
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -71,8 +69,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireLowercase = false;
 }).AddEntityFrameworkStores<HetznerDbContext>();
 
-var secret = builder.Configuration.GetSection("JwtSettings")["Secret"]!;
-Console.WriteLine("Programcs Secret: " + secret);
 
 builder.Services.AddAuthentication(a =>
 {
@@ -82,12 +78,12 @@ builder.Services.AddAuthentication(a =>
 }).AddJwtBearer(opt =>
 {
     opt.IncludeErrorDetails = true;
-    
+    opt.MapInboundClaims = false;
     opt.TokenValidationParameters = new TokenValidationParameters
     {
         IssuerSigningKey = new SymmetricSecurityKey(
     Encoding.ASCII.GetBytes(
-    secret
+    builder.Configuration.GetSection("JwtSettings")["Secret"]!
     )),
         ValidateIssuer = false,
         ValidateAudience = false,

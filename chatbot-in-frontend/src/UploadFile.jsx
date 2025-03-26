@@ -1,3 +1,5 @@
+import { getCookie } from "./scripts/Chatbotin-Helper";
+
 export function UploadFile() {
     return <form onSubmit={upoad_file}>
         <input type="file" name="myfile"></input>
@@ -7,14 +9,13 @@ export function UploadFile() {
 
     function upoad_file(event) {
         event.preventDefault();
-        console.log(event.target.myfile.files[0]);
 
         var request = new Request('http://localhost:5114/upload', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-binary',
                 'filename': event.target.myfile.files[0].name,
-                'token': "asdf"
+                'Authorization': getCookie('session')
             },
             body: event.target.myfile.files[0]
         });
