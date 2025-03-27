@@ -14,6 +14,19 @@ namespace Chatbot_in.Controller
             _geminiService = geminiService;
         }
 
+        [HttpGet]
+        [Route("filecontent")]
+        public IActionResult GetFileContent([FromQuery] string filename)
+        {
+            var path = Path.Combine("YourFileStorageDirectory", filename);
+
+            if (!System.IO.File.Exists(path))
+                return NotFound();
+
+            var content = System.IO.File.ReadAllText(path);
+            return Ok(content);
+        }
+
         [HttpPost]
         //public async Task<IActionResult> ChatWithFile([FromBody] ChatRequest chatRequest)
 

@@ -24,7 +24,7 @@ function App() {
     return (
         <>
             <hr></hr>
-            <h1>Chatbot:in</h1>
+            <h1>Pocket Lawyer</h1>
             <hr></hr>
             <ChatbotinContextProvider>
                 <Auth></Auth>
