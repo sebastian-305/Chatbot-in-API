@@ -35,6 +35,17 @@ namespace Chatbot_in.Controller
             return Unauthorized();
         }
 
+
+        [HttpPost]
+        [Route("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            _logger.LogInformation("User logged out");
+
+            return Ok(new ResponseDTO { Status = "Success", Message = "Logged out successfully" });
+        }
+
+
         [HttpPost]
         [Route("register")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
