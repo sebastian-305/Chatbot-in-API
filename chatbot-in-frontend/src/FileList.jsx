@@ -3,8 +3,10 @@ import { getCookie } from "./scripts/Chatbotin-Helper.js"
 
 export function FileList() {
     const [files, setFiles] = useState([]);
+    const [filesChanged, setFilesChanged] = useState(0);
 
     useEffect(() => {
+        console.log("Loading Files...");
         var session_token = getCookie("session");
 
         const request = new Request('http://localhost:5114/files', {
@@ -14,7 +16,7 @@ export function FileList() {
             }
         });
         fetch(request).then(response => response.json()).then(text => { setFiles(text.map(e => e.fileName)) });
-    }, [])
+    }, [filesChanged])
 
     return <ul>
         {files.map(create_list_element)}
@@ -30,7 +32,11 @@ export function FileList() {
                 "Authorization": getCookie("session")
             }
         });
-        fetch(request).then(response => response.text()).then(text => console.log(text));
+        fetch(request).then(response => response.text()).then(text => {
+            console.log(text);
+            setFilesChanged(filesChanged + 1);
+            console.log(filesChanged);
+        });
     }
 
     function create_list_element(filename, index) {

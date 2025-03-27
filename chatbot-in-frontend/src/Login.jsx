@@ -2,13 +2,13 @@ export function Login() {
 
 
 
-    return <form onSubmit={handle_login}>
+    return <form onSubmit={handleLogin}>
         <label htmlFor="login-form-username">User Name </label><input type="text" id="login-form-username" name="username"></input>
         <label htmlFor="login-form-password">Password: </label><input type="password" id="login-form-password" name="password"></input>
         <input type="submit" value="Login"></input>
     </form>;
 
-    function handle_login(event) {
+    function handleLogin(event) {
         event.preventDefault();
         const request = new Request('http://localhost:5114/login', {
             method: 'POST',
@@ -25,8 +25,9 @@ export function Login() {
             console.log(text);
             console.log(text.token);
             console.log(text.expiration);
-            document.cookie = `session=Bearer ${text.token}; expires=${text.expiration}`;
-            //window.location.reload();
+            document.cookie = `session=Bearer ${text.token}; expires=${new Date(text.expiration).toUTCString()}; path=/`;
+
+            window.location.reload();
         });
     }
 

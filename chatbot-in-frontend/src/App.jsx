@@ -1,42 +1,35 @@
-import { useState, useEffect } from "react";
-import { getCookie, isLoggedIn } from "./scripts/Chatbotin-Helper";
-import { UploadFile } from "./UploadFile"
-import { FileList } from "./FileList"
-import { ChatBot } from "./ChatBot"
-import { Registration } from "./Registration"
-import { Login } from "./Login"
-import { Logout } from "./Logout"
+import { useState } from "react";
+import ChatbotinContext from "./ChatbotinContext"
 import './App.css'
-import { useEffect } from "react";
+import {Auth} from "./Auth";
 
-function App() {
-
+export const ChatbotinContextProvider = (props) => {
     const [loggedIn, setLoggedIn] = useState(false);
+    const [filesChanged, setFilesChanged] = useState(0);
 
-    useEffect(() => {
-        setLoggedIn(isLoggedIn());
-    }, []);
 
     return (
-        <>
-            {!loggedIn && (
-                <>
-                    <Registration></Registration>
-                    <Login></Login>
-                </>
-            )}
-            {loggedIn && (
-                <>
-                    <Logout></Logout>
-                    <hr></hr>
-                    <h1>Chatbot:in</h1>
-                    <hr></hr>
-                    <UploadFile></UploadFile>
-                    <FileList></FileList>
-                    <ChatBot></ChatBot>
-                </>
+        <ChatbotinContext.Provider
+            value={{
+                loggedIn, setLoggedIn, filesChanged, setFilesChanged,
+            }}>
+            {props.children}
+        </ChatbotinContext.Provider>
+    );
+};
 
-            )}
+
+
+function App() {
+    return (
+        <>
+            <hr></hr>
+            <h1>Chatbot:in</h1>
+            <hr></hr>
+            <ChatbotinContextProvider>
+                <Auth></Auth>
+            </ChatbotinContextProvider>
+
         </>
     );
 
