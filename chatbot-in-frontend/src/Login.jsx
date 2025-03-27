@@ -26,7 +26,7 @@ export function Login() {
             console.log(text.token);
             console.log(text.expiration);
             document.cookie = `session=Bearer ${text.token}; expires=${text.expiration}`;
-
+            //window.location.reload();
         });
     }
 

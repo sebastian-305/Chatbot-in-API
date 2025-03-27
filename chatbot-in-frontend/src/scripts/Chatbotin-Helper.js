@@ -1,3 +1,4 @@
+//
 export function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -12,4 +13,8 @@ export function getCookie(cname) {
         }
     }
     return "";
+}
+
+export function isLoggedIn() {
+    return getCookie('session') !== null;
 }
