@@ -124,6 +124,8 @@ builder.Services.AddScoped<ITokenRepository, HetznerDbTokenRepository>();
 builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoRepository>();
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
 builder.Services.AddScoped<ITokenService, JWTService>();
+builder.Services.Configure<FileStorageOptions>(builder.Configuration.GetSection("FileStorage"));
+
 
 var app = builder.Build();
 

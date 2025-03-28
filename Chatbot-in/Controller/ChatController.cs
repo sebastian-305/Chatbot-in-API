@@ -1,4 +1,5 @@
 ﻿using Chatbot_in.Domain.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chatbot_in.Controller
@@ -28,25 +29,27 @@ namespace Chatbot_in.Controller
         }
 
         [HttpPost]
-        //public async Task<IActionResult> ChatWithFile([FromBody] ChatRequest chatRequest)
-
-
+        [Authorize]
         public async Task<IActionResult> ChatWithFile([FromBody] ChatRequest chatRequest)
         {
             if (string.IsNullOrEmpty(chatRequest.UserMessage) || string.IsNullOrEmpty(chatRequest.DocumentContent))
                 return BadRequest("Missing user message or document content");
 
-            //string response = await _geminiService.ChatWithAI(chatRequest.UserMessage, chatRequest.DocumentContent);
-            //return Ok(new { response });
+            // Send message + file content to Gemini
+            var combinedPrompt = $"User question: {chatRequest.UserMessage}\n\nFile content:\n{chatRequest.DocumentContent}\n\nPlease summarize or answer based on the file.";
 
-            return Ok();
+            var aiResponse = await _geminiService.ChatWithAI(combinedPrompt);
+
+            return Ok(aiResponse);
         }
     }
 
-    public class ChatRequest
+}
+
+public class ChatRequest
     {
         public string UserMessage { get; set; }
         public string DocumentContent { get; set; }
     }
-}
+
 
