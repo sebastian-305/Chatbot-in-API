@@ -17,7 +17,7 @@ namespace Chatbot_in.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.13")
+                .HasAnnotation("ProductVersion", "8.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
@@ -105,22 +105,6 @@ namespace Chatbot_in.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Files");
-                });
-
-            modelBuilder.Entity("Chatbot_in.Domain.Models.Token", b =>
-                {
-                    b.Property<string>("TokenId")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("LastUse")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("TokenId");
-
-                    b.ToTable("Tokens");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

@@ -110,6 +110,30 @@ namespace Chatbot_in.Domain.Service
         }
 
 
+        public async Task<string> ChatWithFiles(string prompt, List<KeyValuePair<string,string>> files)
+        {
+            StringBuilder promptBuilder = new StringBuilder();
+
+            promptBuilder.Append("You are an expert in analyzing Texts and answering Questions. I have the following question that might be in another language:\n\n");
+            promptBuilder.Append(prompt);
+            promptBuilder.Append("\n\nThis was my Question. Please include your reasoning in the answer and answer it considering ");
+            promptBuilder.Append((files.Count > 1 ? "these files" : "this file"));
+            promptBuilder.Append(" that might be in another language");
+            promptBuilder.Append("---------------------------------");
+            foreach (var file in files)
+            {                
+                promptBuilder.Append("\n\nFilename: ");
+                promptBuilder.Append(file.Key);
+                promptBuilder.Append("\n\nFilecontent: \n");
+                promptBuilder.Append(file.Value);
+                promptBuilder.Append("---------------------------------");
+            }
+            promptBuilder.Append("\n\nI gave you now the question and all the files in textform for the answer. Please answer the question in the language the question is written.");
+
+            _logger.LogInformation(promptBuilder.ToString());
+            return await ChatWithAI(promptBuilder.ToString());
+        }
+
         public async Task<string> ChatWithAI(string userMessage)
         {
             var requestUri = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent?key={_apiKey}";

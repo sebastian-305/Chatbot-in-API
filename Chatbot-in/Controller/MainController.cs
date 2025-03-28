@@ -3,6 +3,7 @@ using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Chatbot_in.Controllers;
 
@@ -31,7 +32,7 @@ public class MainController : ControllerBase
     public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetFiles");
-        
+
         string short_id = GetShortUid(Request);
 
         var files = await _contextFileInfoRepository.GetFiles(short_id);
@@ -122,10 +123,19 @@ public class MainController : ControllerBase
     }
 
     [HttpPost("chat")]
-    public async Task<ActionResult<string>> PostChat(string prompt)
+    public async Task<ActionResult<string>> PostChat([FromBody] AiRequestDTO request)
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
-        string response = await _geminiService.ChatWithAI(prompt);
+        string short_id = GetShortUid(Request);
+
+        List<KeyValuePair<string, string>> files = new List<KeyValuePair<string, string>>();
+        foreach (var fileName in request.FileNames)
+        {
+            string[] content = await _fileHandling.LoadFile(short_id, fileName);
+            files.Add(new(fileName, string.Join("\n", content)));
+        }
+
+        string response = await _geminiService.ChatWithFiles(request.Prompt, files);
         return Ok(new { response });
     }
 
