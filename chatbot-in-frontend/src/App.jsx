@@ -1,7 +1,8 @@
 import { useState } from "react";
 import ChatbotinContext from "./ChatbotinContext"
 import './App.css'
-import {Auth} from "./Auth";
+import { Auth } from "./Auth";
+
 
 export const ChatbotinContextProvider = (props) => {
     const [loggedIn, setLoggedIn] = useState(false);

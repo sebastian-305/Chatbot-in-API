@@ -1,8 +1,10 @@
 ﻿using Chatbot_in.Domain.Models;
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
+using Chatbot_in.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Chatbot_in.Controllers;
@@ -16,13 +18,21 @@ public class MainController : ControllerBase
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
     private readonly GeminiService _geminiService;
+    private readonly IPromptCounterService _promptCounterService;
+    private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
 
-    public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling, IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService)
+    public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
+        IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService,
+        IPromptCounterService promptCounterService,
+        IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
+        )
     {
         _logger = logger;
         _fileHandling = fileHandling; //Speichert, lädt oder löscht Dateien im Dateisystem von Hetzner
         _contextFileInfoRepository = contextFileInfoRepository; //Speichert Dateiname und Username in Hetzner-Datenbank
         _geminiService = geminiService;
+        _promptCounterService = promptCounterService;
+        _counterHub = counterHub;
     }
 
 
@@ -47,6 +57,14 @@ public class MainController : ControllerBase
         _logger.Log(LogLevel.Debug, "Entered MainController.PostFile");
 
         string short_id = GetShortUid(Request);
+        string? filename = Request.Headers["filename"];
+        var totalFiles = await _contextFileInfoRepository.GetFiles(short_id);
+
+        if (totalFiles.Count() >= 3)
+            return BadRequest("The Maximum of Files you can upload is 3. Delete a File to replace it.");
+
+        if (filename?.Split('.').Last() != "txt")
+            return BadRequest($"Wrong file type! Only txt files are allowed!");
 
         byte[] data; //Hier werden die Daten der Datei gespeichert
         using (var ms = new MemoryStream(2048))
@@ -55,7 +73,13 @@ public class MainController : ControllerBase
             data = ms.ToArray();//Daten der Datei werden im Byte-Array gespeichert
         }
 
-        string? filename = Request.Headers["filename"];
+        int size = data.Length;
+        string sizeString = size.ToString("#,##0").Replace(",", " ");
+
+        _logger.LogInformation("Size of the uploaded file is {size} bytes", sizeString);
+
+        if (size > 10_000)
+            return BadRequest($"File size is too big! Maximum Filesize is 10 000 bytes and your file has {sizeString} bytes");
 
         if (short_id == String.Empty)
             return BadRequest("Bad Token!");
@@ -66,14 +90,10 @@ public class MainController : ControllerBase
         ContextFileInfo? fileInfo = await _fileHandling.SaveFile(short_id, filename, data);
 
         if (fileInfo == null)
-        {
             return base.Problem("Something went wrong with saving the file. (Don't) contact the Administor for further information.");
-        }
 
         if (await _contextFileInfoRepository.SaveFile(fileInfo) == 0)
-        {
             return base.Problem("Something went wrong with saving the fileinfo. (Don't) contact the Administor for further information.");
-        }
 
         return Accepted();
     }
@@ -126,6 +146,14 @@ public class MainController : ControllerBase
     public async Task<ActionResult<string>> PostChat([FromBody] AiRequestDTO request)
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
+        _promptCounterService.AddPrompt();
+        await _counterHub.Clients.All.RequestCounterChanged(
+            new ISubscribeCounterClient.RequestsLeftParams()
+            {
+                PromptsLeftDay = _promptCounterService.PromptsLeftDay,
+                PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+            });
+
         string short_id = GetShortUid(Request);
 
         List<KeyValuePair<string, string>> files = new List<KeyValuePair<string, string>>();

@@ -1,6 +1,10 @@
+import { useContext } from "react"
 import { getCookie } from "./scripts/Chatbotin-Helper";
+import ChatbotinContext from "./ChatbotinContext";
 
 export function UploadFile() {
+    const {filesChanged, setFilesChanged } = useContext(ChatbotinContext);
+
     return <form onSubmit={upoad_file}>
         <input type="file" name="myfile"></input>
         <input type="submit" value="Upload" ></input>
@@ -19,9 +23,18 @@ export function UploadFile() {
             },
             body: event.target.myfile.files[0]
         });
-        fetch(request).then(response => response.status).then(text => {
+        fetch(request).then(response => {
+            let status = response.status
             console.log("Response:");
-            console.log(text);
+            console.log(status);
+            if (status === 202) {
+                setFilesChanged(filesChanged + 1);
+                event.target.myfile.value = null;
+                //alert("File Upload completed");
+            }
+            else {
+                response.text().then(message => alert(message));
+            }
         });
 
     }

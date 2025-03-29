@@ -16,7 +16,7 @@ export function getCookie(cname) {
 }
 
 export function isLoggedIn() {
-    return getCookie('session') !== null;
+    return getCookie('session') !== "";
 }
 
 

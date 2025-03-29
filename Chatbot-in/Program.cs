@@ -1,20 +1,18 @@
+using System.Text;
+using Chatbot_in.Domain.Identity;
 using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
 using Chatbot_in.Infrastructure;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.EntityFrameworkCore;
-using Chatbot_in.Domain.Identity;
-using Microsoft.AspNetCore.Identity;
+using Chatbot_in.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.OpenApi.Models;
-using Chatbot_in.Domain.Models;
-
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
 //Service to log httpRequests and responses
@@ -51,6 +49,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSignalR();
 // Register GeminiService
 builder.Services.AddSingleton<GeminiService>();
 
@@ -68,7 +67,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
 }).AddEntityFrameworkStores<HetznerDbContext>();
-
 
 builder.Services.AddAuthentication(a =>
 {
@@ -118,11 +116,9 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-
-
-
 builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoRepository>();
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
+builder.Services.AddScoped<IPromptCounterService, PromptCounter>();
 builder.Services.AddScoped<ITokenService, JWTService>();
 
 var app = builder.Build();
@@ -147,5 +143,6 @@ if (app.Environment.IsDevelopment())
 //app.UseHttpsRedirection();
 
 app.MapControllers();
+app.MapHub<RequestCounterHub>("/hubs/counter");
 
 app.Run();

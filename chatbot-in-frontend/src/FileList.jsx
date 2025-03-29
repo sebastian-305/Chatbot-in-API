@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { getCookie } from "./scripts/Chatbotin-Helper.js"
-
+import ChatbotinContext from "./ChatbotinContext"
 export function FileList() {
     const [files, setFiles] = useState([]);
-    const [filesChanged, setFilesChanged] = useState(0);
+
+    const { filesChanged, setFilesChanged } = useContext(ChatbotinContext);
+    
 
     useEffect(() => {
         console.log("Loading Files...");
