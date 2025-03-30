@@ -3,12 +3,9 @@ import { getCookie } from "../scripts/Chatbotin-Helper.js"
 import ChatbotinContext from "../ChatbotinContext"
 export function FileList() {
     const [files, setFiles] = useState([]);
-
     const { filesChanged, setFilesChanged, selectedFiles, addFile, removeFile } = useContext(ChatbotinContext);
 
-
     useEffect(() => {
-        console.log("Loading Files...");
         var session_token = getCookie("session");
 
         const request = new Request('http://localhost:5114/files', {
@@ -31,7 +28,6 @@ export function FileList() {
     </ul>;
 
     function delete_file(filename) {
-        
         const request = new Request('http://localhost:5114/delete', {
             method: 'DELETE',
             headers: {
@@ -39,8 +35,8 @@ export function FileList() {
                 "Authorization": getCookie("session")
             }
         });
-        fetch(request).then(response => response.text()).then(()=>
-            setFilesChanged(filesChanged + 1)            
+        fetch(request).then(response => response.text()).then(() =>
+            setFilesChanged(filesChanged + 1)
         );
     }
 

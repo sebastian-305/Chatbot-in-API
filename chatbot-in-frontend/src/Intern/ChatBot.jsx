@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { getCookie } from "../scripts/Chatbotin-Helper";
 import ChatbotinContext from "../ChatbotinContext"
 
@@ -7,6 +7,11 @@ export function ChatBot() {
     const [messages, setMessages] = useState([]); // chat history
     const [isLoading, setIsLoading] = useState(false);
     const { selectedFiles } = useContext(ChatbotinContext);
+
+    useEffect(() => {
+        const chat = document.getElementById("chat-window");
+        chat.scrollTo({ top: chat.scrollHeight, behaviour: "smooth" })
+    }, [messages]);
 
     async function sendMessage(event) {
         event.preventDefault();
@@ -32,13 +37,12 @@ export function ChatBot() {
             })
         });
 
+        setUserMessage("");
+
         const response = await fetch(request);
         const result = await response.text(); // assumes plain text
 
-        
-
         setMessages(prev => [...prev, { role: "user", text: userMessage }, { role: "ai", text: result }]);
-        setUserMessage("");
         setIsLoading(false);
     }
 
@@ -47,7 +51,7 @@ export function ChatBot() {
     return (
         <div style={{ margin: "20px auto", width:"100%" }}>
             <h2>Chatbot</h2>
-            <div style={{
+            <div id="chat-window" style={{
                 border: "1px solid gray", padding: "1em", height: "600px", overflowY: "scroll", backgroundColor: "#f9f9f9", marginBottom: "1em", width: "100%"
             }}>
                 {messages.map((msg, i) => (

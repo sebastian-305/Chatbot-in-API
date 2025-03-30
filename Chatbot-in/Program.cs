@@ -51,8 +51,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSignalR();
-// Register GeminiService
-builder.Services.AddSingleton<GeminiService>();
 
 builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
@@ -121,6 +119,7 @@ builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoR
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
 builder.Services.AddSingleton<IPromptCounterService, PromptCounter>();
 builder.Services.AddScoped<ITokenService, JWTService>();
+builder.Services.AddScoped<IAiService, GeminiService>();
 
 var app = builder.Build();
 
@@ -137,6 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//Nur beim ersten Mal
 //SeedDB.Initialize(
 //    app.Services.GetRequiredService<IServiceProvider>().CreateScope().ServiceProvider​
 //    );

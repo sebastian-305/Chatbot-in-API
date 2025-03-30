@@ -17,13 +17,13 @@ public class MainController : ControllerBase
     private readonly ILogger<MainController> _logger;
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
-    private readonly GeminiService _geminiService;
+    private readonly IAiService _geminiService;
     private readonly IPromptCounterService _promptCounterService;
     private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
     
 
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
-        IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService,
+        IContextFileInfoRepository contextFileInfoRepository, IAiService geminiService,
         IPromptCounterService promptCounterService,
         IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
         
@@ -95,8 +95,8 @@ public class MainController : ControllerBase
 
         _logger.LogInformation("Size of the uploaded file is {size} bytes", sizeString);
 
-        if (size > 10_000)
-            return BadRequest($"File size is too big! Maximum Filesize is 10 000 bytes and your file has {sizeString} bytes");
+        if (size > 40_000)
+            return BadRequest($"File size is too big! Maximum Filesize is 40 000 bytes and your file has {sizeString} bytes");
 
         if (short_id == String.Empty)
             return BadRequest("Bad Token!");
@@ -180,7 +180,7 @@ public class MainController : ControllerBase
             files.Add(new(fileName, string.Join("\n", content)));
         }
 
-        string response = await _geminiService.ChatWithFiles(request.Prompt, files);
+        string response = await _geminiService.SendPrompt(request.Prompt, files);
         return Ok(response );
     }
 

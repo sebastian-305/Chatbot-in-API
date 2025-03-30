@@ -22,10 +22,10 @@ export function isLoggedIn() {
 
 //This is the event handler that gets triggered when the logout button is clicked.
 //It assumes your backend is set up to handle POST /logout and will invalidate the token.
-export function handleLogout(event) {
+export function handleLogout() {
     //Prevents the default browser behavior for button clicks or form submissions. 
     //Not strictly necessary here since it's not a form, but still safe.
-    event.preventDefault();
+    //event.preventDefault();
     //Creates a POST request to the backend endpoint /logout with the Authorization header set to your session token.
     const request = new Request('http://localhost:5114/logout', {
         method: 'POST',
@@ -43,4 +43,24 @@ export function handleLogout(event) {
     alert("Logged out"); //Displays a popup message to the user for confirmation.
     window.location.reload();//Reloads the whole page so your app reflects the logout
 
+}
+
+export function handleLogin(user, password) {
+    const request = new Request('http://localhost:5114/login', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "username": user,
+            "password": password
+        })
+    });
+    fetch(request).then(response => response.json()).then(text => {
+        if (text.token)
+            document.cookie = `session=Bearer ${text.token}; expires=${new Date(text.expiration).toUTCString()}; path=/`;
+
+        window.location.reload();
+    });
 }
