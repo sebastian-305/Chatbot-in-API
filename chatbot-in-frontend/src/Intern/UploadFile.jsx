@@ -1,6 +1,6 @@
 import { useContext } from "react"
-import { getCookie } from "./scripts/Chatbotin-Helper";
-import ChatbotinContext from "./ChatbotinContext";
+import { getCookie } from "../scripts/Chatbotin-Helper";
+import ChatbotinContext from "../ChatbotinContext";
 
 export function UploadFile() {
     const {filesChanged, setFilesChanged } = useContext(ChatbotinContext);

@@ -20,11 +20,13 @@ public class MainController : ControllerBase
     private readonly GeminiService _geminiService;
     private readonly IPromptCounterService _promptCounterService;
     private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
+    
 
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
         IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService,
         IPromptCounterService promptCounterService,
         IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
+        
         )
     {
         _logger = logger;
@@ -33,8 +35,23 @@ public class MainController : ControllerBase
         _geminiService = geminiService;
         _promptCounterService = promptCounterService;
         _counterHub = counterHub;
+        
     }
 
+    [Authorize(Roles = "User")]
+    [HttpGet("count")]
+    public async Task GetRefreshedCount()
+    {
+        _logger.Log(LogLevel.Debug, "Entered MainController.RefreshCount");
+        await _counterHub.Clients.All.RequestCounterChanged(
+        new ISubscribeCounterClient.RequestsLeftParams()
+        {
+            PromptsLeftDay = _promptCounterService.PromptsLeftDay,
+            PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+        });
+
+        _logger.LogInformation("Total prompst: {prompts}", _promptCounterService.TotalPrompts);
+    }
 
     //Get Fileinfos from Database
     [HttpGet("files")]
@@ -148,11 +165,11 @@ public class MainController : ControllerBase
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
         _promptCounterService.AddPrompt();
         await _counterHub.Clients.All.RequestCounterChanged(
-            new ISubscribeCounterClient.RequestsLeftParams()
-            {
-                PromptsLeftDay = _promptCounterService.PromptsLeftDay,
-                PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
-            });
+          new ISubscribeCounterClient.RequestsLeftParams()
+          {
+              PromptsLeftDay = _promptCounterService.PromptsLeftDay,
+              PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+          });
 
         string short_id = GetShortUid(Request);
 
@@ -164,7 +181,7 @@ public class MainController : ControllerBase
         }
 
         string response = await _geminiService.ChatWithFiles(request.Prompt, files);
-        return Ok(new { response });
+        return Ok(response );
     }
 
     //[HttpPost("analyze")]

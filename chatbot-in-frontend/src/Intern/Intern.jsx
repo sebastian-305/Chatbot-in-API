@@ -8,18 +8,16 @@ import { createSignalRContext } from "react-signalr/signalr";
 export const SignalRContext = createSignalRContext();
 
 export function Intern() {
-    const { token } = "counter";
-    return <SignalRContext.Provider
-        connectEnabled={!!token}
-        accessTokenFactory={() => token}
-        dependencies={[token]} //remove previous connection and create a new connection if changed
-        url={"http://localhost:5114/hubs/counter"}
-    >
+    return <>
         <Logout></Logout>
-        <DisplayRequestCount></DisplayRequestCount>
+        <SignalRContext.Provider
+            url={"http://localhost:5114/hubs/counter"}
+        >
+            <DisplayRequestCount></DisplayRequestCount>
+        </SignalRContext.Provider>
         <UploadFile></UploadFile>
         <FileList></FileList>
         <ChatBot></ChatBot>
-        
-    </SignalRContext.Provider>
+    </>
+
 }

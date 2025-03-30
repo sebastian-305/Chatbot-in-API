@@ -1,6 +1,6 @@
 //This line imports a helper function called getCookie from a file in your scripts folder.
 
-import { handleLogout } from "./scripts/Chatbotin-Helper";
+import { handleLogout } from "../scripts/Chatbotin-Helper";
 
 //getCookie('session') is used to retrieve the session token saved in a browser cookie.
 

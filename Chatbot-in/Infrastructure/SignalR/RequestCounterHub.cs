@@ -6,10 +6,10 @@ namespace Chatbot_in.Infrastructure.SignalR;
 
 public class RequestCounterHub : Hub<ISubscribeCounterClient>
 {
-    //public async Task Send(RequestsLeftParams message)
-    //{
-    //    //var encodedMessage = HtmlEncoder.Default.Encode(message);
-    //    await Clients.All.RequestCounterChanged(message);
-    //}
+    public async Task Send(RequestsLeftParams message)
+    {
+        //var encodedMessage = HtmlEncoder.Default.Encode(message);
+        await Clients.All.RequestCounterChanged(message);
+    }
 
 }

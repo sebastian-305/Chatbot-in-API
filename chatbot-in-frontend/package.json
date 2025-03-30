@@ -9,13 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@microsoft/signalr": "^8.0.7",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-signalr": "^0.2.24",
-    "socket.io-client": "^4.8.1"
-  },
+    "dependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "react-signalr": "^0.2.24"
+    },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/react": "^19.0.10",

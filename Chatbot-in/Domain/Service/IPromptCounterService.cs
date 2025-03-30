@@ -9,4 +9,6 @@ public interface IPromptCounterService
     int PromptsLeftMinute { get; }
 
     int PromptsLeftDay { get; }
+
+    int TotalPrompts {  get; }
 }

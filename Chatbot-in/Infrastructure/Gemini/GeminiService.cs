@@ -129,6 +129,8 @@ namespace Chatbot_in.Domain.Service
                 promptBuilder.Append("---------------------------------");
             }
             promptBuilder.Append("\n\nI gave you now the question and all the files in textform for the answer. Please answer the question in the language the question is written.");
+            promptBuilder.Append("Do not user markdown formatting, * or #");
+            promptBuilder.Append("Format your answer with HTML");
 
             _logger.LogInformation(promptBuilder.ToString());
             return await ChatWithAI(promptBuilder.ToString());

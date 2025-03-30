@@ -37,7 +37,8 @@ builder.Services.AddCors(options =>
                           policy
                           .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                       });
 });
 
@@ -118,7 +119,7 @@ builder.Services.AddSwaggerGen(opt =>
 
 builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoRepository>();
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
-builder.Services.AddScoped<IPromptCounterService, PromptCounter>();
+builder.Services.AddSingleton<IPromptCounterService, PromptCounter>();
 builder.Services.AddScoped<ITokenService, JWTService>();
 
 var app = builder.Build();
@@ -144,5 +145,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 app.MapHub<RequestCounterHub>("/hubs/counter");
+
 
 app.Run();
