@@ -1,3 +1,5 @@
+import { handleLogin } from "../scripts/Chatbotin-Helper"
+
 export function Registration() {
 
     return <form onSubmit={handle_registration}>
@@ -21,7 +23,16 @@ export function Registration() {
                 "password": event.target.password.value
             })
         });
-        fetch(request).then(response => response.json()).then(text => console.log(text));
+        
+        fetch(request).then(response => response.json()).then(text => {
+            alert(text.message);
+            if (text.status.toUpperCase() === "SUCCESS") {
+                handleLogin(event.target.username.value, event.target.password.value);
+            };
+            
+        });
+
+
     }
 
 }

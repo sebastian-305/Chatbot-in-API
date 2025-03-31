@@ -1,9 +1,9 @@
 import ChatbotinContext from "./ChatbotinContext"
-import { Registration } from "./Registration"
-import { Login } from "./Login"
+import { Registration } from "./Extern/Registration"
+import { Login } from "./Extern/Login"
 import { useEffect, useContext } from "react";
 import { isLoggedIn } from "./scripts/Chatbotin-Helper";
-import { Intern } from "./Intern"
+import { Intern } from "./Intern/Intern"
 
 
 export function Auth() {

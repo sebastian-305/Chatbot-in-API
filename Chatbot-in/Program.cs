@@ -37,7 +37,8 @@ builder.Services.AddCors(options =>
                           policy
                           .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                       });
 });
 
@@ -50,8 +51,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSignalR();
-// Register GeminiService
-builder.Services.AddSingleton<GeminiService>();
 
 builder.Services.AddDbContext<HetznerDbContext>(options =>
 options.UseMySql(secrets["db:connectionstring"], ServerVersion.AutoDetect(secrets["db:connectionstring"]))
@@ -118,8 +117,9 @@ builder.Services.AddSwaggerGen(opt =>
 
 builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoRepository>();
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
-builder.Services.AddScoped<IPromptCounterService, PromptCounter>();
+builder.Services.AddSingleton<IPromptCounterService, PromptCounter>();
 builder.Services.AddScoped<ITokenService, JWTService>();
+builder.Services.AddScoped<IAiService, GeminiService>();
 
 var app = builder.Build();
 
@@ -136,6 +136,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//Nur beim ersten Mal
 //SeedDB.Initialize(
 //    app.Services.GetRequiredService<IServiceProvider>().CreateScope().ServiceProvider​
 //    );
@@ -144,5 +145,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 app.MapHub<RequestCounterHub>("/hubs/counter");
+
 
 app.Run();

@@ -11,14 +11,12 @@ namespace Chatbot_in.Controller
     public class AuthenticateController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly ITokenService _tokenService;
         private readonly ILogger<AuthenticateController> _logger;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, ITokenService tokenService, ILogger<AuthenticateController> logger)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, ITokenService tokenService, ILogger<AuthenticateController> logger)
         {
             _userManager = userManager;
-            _configuration = configuration;
             _tokenService = tokenService;
             _logger = logger;
         }

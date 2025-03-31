@@ -9,9 +9,11 @@ namespace Chatbot_in.Infrastructure
         private readonly int _RPM = 15;
         private readonly int _RPD = 15000;
 
-        public int PromptsLeftMinute => _RPM - _prompts.Count(p => p > DateTime.Now.AddDays(-1));
+        public int PromptsLeftMinute => _RPM - _prompts.Count(p => p > DateTime.Now.AddMinutes(-1));
 
-        public int PromptsLeftDay => _RPD - _prompts.Count(p => p > DateTime.Now.AddMinutes(-1));
+        public int PromptsLeftDay => _RPD - _prompts.Count(p => p > DateTime.Now.AddDays(-1)); 
+
+        public int TotalPrompts => _prompts.Count;
 
         public void AddPrompt()
         {

@@ -17,14 +17,16 @@ public class MainController : ControllerBase
     private readonly ILogger<MainController> _logger;
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
-    private readonly GeminiService _geminiService;
+    private readonly IAiService _geminiService;
     private readonly IPromptCounterService _promptCounterService;
     private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
+    
 
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
-        IContextFileInfoRepository contextFileInfoRepository, GeminiService geminiService,
+        IContextFileInfoRepository contextFileInfoRepository, IAiService geminiService,
         IPromptCounterService promptCounterService,
         IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
+        
         )
     {
         _logger = logger;
@@ -33,8 +35,23 @@ public class MainController : ControllerBase
         _geminiService = geminiService;
         _promptCounterService = promptCounterService;
         _counterHub = counterHub;
+        
     }
 
+    [Authorize(Roles = "User")]
+    [HttpGet("count")]
+    public async Task GetRefreshedCount()
+    {
+        _logger.Log(LogLevel.Debug, "Entered MainController.RefreshCount");
+        await _counterHub.Clients.All.RequestCounterChanged(
+        new ISubscribeCounterClient.RequestsLeftParams()
+        {
+            PromptsLeftDay = _promptCounterService.PromptsLeftDay,
+            PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+        });
+
+        _logger.LogInformation("Total prompst: {prompts}", _promptCounterService.TotalPrompts);
+    }
 
     //Get Fileinfos from Database
     [HttpGet("files")]
@@ -78,8 +95,8 @@ public class MainController : ControllerBase
 
         _logger.LogInformation("Size of the uploaded file is {size} bytes", sizeString);
 
-        if (size > 10_000)
-            return BadRequest($"File size is too big! Maximum Filesize is 10 000 bytes and your file has {sizeString} bytes");
+        if (size > 40_000)
+            return BadRequest($"File size is too big! Maximum Filesize is 40 000 bytes and your file has {sizeString} bytes");
 
         if (short_id == String.Empty)
             return BadRequest("Bad Token!");
@@ -148,11 +165,11 @@ public class MainController : ControllerBase
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
         _promptCounterService.AddPrompt();
         await _counterHub.Clients.All.RequestCounterChanged(
-            new ISubscribeCounterClient.RequestsLeftParams()
-            {
-                PromptsLeftDay = _promptCounterService.PromptsLeftDay,
-                PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
-            });
+          new ISubscribeCounterClient.RequestsLeftParams()
+          {
+              PromptsLeftDay = _promptCounterService.PromptsLeftDay,
+              PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+          });
 
         string short_id = GetShortUid(Request);
 
@@ -163,8 +180,8 @@ public class MainController : ControllerBase
             files.Add(new(fileName, string.Join("\n", content)));
         }
 
-        string response = await _geminiService.ChatWithFiles(request.Prompt, files);
-        return Ok(new { response });
+        string response = await _geminiService.SendPrompt(request.Prompt, files);
+        return Ok(response );
     }
 
     //[HttpPost("analyze")]
