@@ -4,7 +4,7 @@
     {
         public int Id{ get; set; }
         public string FileName { get; set; }       
-        public string OwnerToken { get; set; }  
+        public string ShortUID { get; set; }  
 
     }
 }

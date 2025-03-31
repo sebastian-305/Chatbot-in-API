@@ -1,14 +1,13 @@
 ﻿using System.Text;
 
-namespace Chatbot_in.Domain.Service
+namespace Chatbot_in.Domain.Service;
+
+public interface IAiService
 {
-    public interface IAiService
-    {
-        public  Task<string> SendPrompt(string prompt, List<KeyValuePair<string, string>> files);
+    public Task<string> SendPrompt(string prompt, List<KeyValuePair<string, string>> files);
 
-        public Task<string> SendPrompt(string userMessage);
+    public Task<string> SendPrompt(string userMessage);
 
-        public Task<string> SendContext(List<KeyValuePair<string, string>> files);
+    public Task<string> SendContext(List<KeyValuePair<string, string>> files);
 
-    }
 }

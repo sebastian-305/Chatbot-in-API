@@ -39,7 +39,7 @@ public class MainController : ControllerBase
     }
 
     [Authorize(Roles = "User")]
-    [HttpGet("count")]
+    [HttpPatch("refreshcount")]
     public async Task GetRefreshedCount()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.RefreshCount");
@@ -51,10 +51,12 @@ public class MainController : ControllerBase
         });
 
         _logger.LogInformation("Total prompst: {prompts}", _promptCounterService.TotalPrompts);
+
+
     }
 
     //Get Fileinfos from Database
-    [HttpGet("files")]
+    [HttpGet("filelist")]
     [Authorize(Roles = "User")]
     public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
@@ -63,8 +65,9 @@ public class MainController : ControllerBase
         string short_id = GetShortUid(Request);
 
         var files = await _contextFileInfoRepository.GetFiles(short_id);
-
-        return Ok(files);
+        var files_filtered = files.Select(o => o.FileName).ToArray() ?? [];
+        _logger.LogDebug(string.Join(", ", files_filtered));
+        return Ok(files_filtered);
     }
 
     [HttpPost("upload")]

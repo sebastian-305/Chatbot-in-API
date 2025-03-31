@@ -9,8 +9,8 @@ export function DisplayRequestCount() {
 
     useEffect(() => {
         var session_token = getCookie("session");
-        fetch(new Request('http://localhost:5114/count', {
-            method: 'GET',
+        fetch(new Request('http://localhost:5114/refreshcount', {
+            method: 'PATCH',
             headers: {
                 "Authorization": session_token
             }
