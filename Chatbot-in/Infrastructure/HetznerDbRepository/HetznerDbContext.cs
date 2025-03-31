@@ -15,6 +15,10 @@ public class HetznerDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<ContextFileInfo> Files { get; set; }
 
+    public DbSet<RequestCounterDTO> Requests { get; set; }
+
+    public DbSet<BlackListTokenDTO> BlackList { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

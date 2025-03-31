@@ -20,13 +20,13 @@ public class MainController : ControllerBase
     private readonly IAiService _geminiService;
     private readonly IPromptCounterService _promptCounterService;
     private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
-    
+
 
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
         IContextFileInfoRepository contextFileInfoRepository, IAiService geminiService,
         IPromptCounterService promptCounterService,
         IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
-        
+
         )
     {
         _logger = logger;
@@ -35,7 +35,7 @@ public class MainController : ControllerBase
         _geminiService = geminiService;
         _promptCounterService = promptCounterService;
         _counterHub = counterHub;
-        
+
     }
 
     [Authorize(Roles = "User")]
@@ -51,8 +51,6 @@ public class MainController : ControllerBase
         });
 
         _logger.LogInformation("Total prompst: {prompts}", _promptCounterService.TotalPrompts);
-
-
     }
 
     //Get Fileinfos from Database
@@ -184,7 +182,7 @@ public class MainController : ControllerBase
         }
 
         string response = await _geminiService.SendPrompt(request.Prompt, files);
-        return Ok(response );
+        return Ok(response);
     }
 
     //[HttpPost("analyze")]
@@ -212,4 +210,10 @@ public class MainController : ControllerBase
             return String.Empty;
         }
     }
+
+    private bool CheckBlackList(string token)
+    {
+        return true;
+    }
 }
+
