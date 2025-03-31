@@ -17,7 +17,7 @@ namespace Chatbot_in.Domain.Service
         {
             _httpClient = new HttpClient();
             _apiKey = configuration["Gemini:Key"] ?? "";
-            _model = "gemini-1.5-flash-001";
+            _model = configuration["Gemini:Model"] ?? "";
             _logger = logger;
         }
 
