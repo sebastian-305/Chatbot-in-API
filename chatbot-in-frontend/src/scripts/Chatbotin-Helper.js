@@ -1,4 +1,3 @@
-//
 export function getCookie(cname) {
     let name = cname + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
@@ -61,6 +60,8 @@ export function handleLogin(user, password) {
         if (text.token)
             document.cookie = `session=Bearer ${text.token}; expires=${new Date(text.expiration).toUTCString()}; path=/`;
 
-        window.location.reload();
-    });
+    })
+        .catch(() => alert("Server offline!"))
+        .finally(() => window.location.reload()
+        )
 }

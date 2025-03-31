@@ -98,7 +98,7 @@ namespace Chatbot_in.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("OwnerToken")
+                    b.Property<string>("ShortUID")
                         .IsRequired()
                         .HasColumnType("longtext");
 

@@ -46,8 +46,6 @@ export function ChatBot() {
         setIsLoading(false);
     }
 
-
-
     return (
         <div style={{ margin: "20px auto", width:"100%" }}>
             <h2>Chatbot</h2>

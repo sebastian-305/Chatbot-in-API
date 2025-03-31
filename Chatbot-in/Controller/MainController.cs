@@ -20,13 +20,13 @@ public class MainController : ControllerBase
     private readonly IAiService _geminiService;
     private readonly IPromptCounterService _promptCounterService;
     private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
-    
+
 
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
         IContextFileInfoRepository contextFileInfoRepository, IAiService geminiService,
         IPromptCounterService promptCounterService,
         IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
-        
+
         )
     {
         _logger = logger;
@@ -35,11 +35,11 @@ public class MainController : ControllerBase
         _geminiService = geminiService;
         _promptCounterService = promptCounterService;
         _counterHub = counterHub;
-        
+
     }
 
     [Authorize(Roles = "User")]
-    [HttpGet("count")]
+    [HttpPatch("refreshcount")]
     public async Task GetRefreshedCount()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.RefreshCount");
@@ -54,7 +54,7 @@ public class MainController : ControllerBase
     }
 
     //Get Fileinfos from Database
-    [HttpGet("files")]
+    [HttpGet("filelist")]
     [Authorize(Roles = "User")]
     public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
@@ -63,8 +63,9 @@ public class MainController : ControllerBase
         string short_id = GetShortUid(Request);
 
         var files = await _contextFileInfoRepository.GetFiles(short_id);
-
-        return Ok(files);
+        var files_filtered = files.Select(o => o.FileName).ToArray() ?? [];
+        _logger.LogDebug(string.Join(", ", files_filtered));
+        return Ok(files_filtered);
     }
 
     [HttpPost("upload")]
@@ -181,7 +182,7 @@ public class MainController : ControllerBase
         }
 
         string response = await _geminiService.SendPrompt(request.Prompt, files);
-        return Ok(response );
+        return Ok(response);
     }
 
     //[HttpPost("analyze")]
@@ -209,4 +210,10 @@ public class MainController : ControllerBase
             return String.Empty;
         }
     }
+
+    private bool CheckBlackList(string token)
+    {
+        return true;
+    }
 }
+

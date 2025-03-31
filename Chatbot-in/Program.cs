@@ -117,7 +117,9 @@ builder.Services.AddSwaggerGen(opt =>
 
 builder.Services.AddScoped<IContextFileInfoRepository, HetznerDbContextFileInfoRepository>();
 builder.Services.AddScoped<IFileHandlingTemporary, HetznerFileHandling>();
-builder.Services.AddSingleton<IPromptCounterService, PromptCounter>();
+//builder.Services.AddSingleton<IPromptCounterService, PromptCounter>();
+builder.Services.AddScoped<IPromptCountRepository, HetznerDbPromptCountRepository>();
+builder.Services.AddScoped<IBlackListRepository, HetznerDbBlackListRepository>();
 builder.Services.AddScoped<ITokenService, JWTService>();
 builder.Services.AddScoped<IAiService, GeminiService>();
 

@@ -1,6 +1,9 @@
-﻿using Chatbot_in.Domain.Identity;
+﻿using System.Runtime.CompilerServices;
+using Chatbot_in.Domain.Identity;
 using Chatbot_in.Domain.Models;
+using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +16,14 @@ namespace Chatbot_in.Controller
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly ILogger<AuthenticateController> _logger;
+        private readonly IBlackListRepository _blackList;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, ITokenService tokenService, ILogger<AuthenticateController> logger)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, ITokenService tokenService, ILogger<AuthenticateController> logger, IBlackListRepository blackList)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _logger = logger;
+            _blackList = blackList;
         }
 
         [HttpPost]
@@ -32,6 +37,31 @@ namespace Chatbot_in.Controller
             }
             return Unauthorized();
         }
+
+
+        [HttpPost]
+        [Authorize]
+        [Route("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            _logger.LogInformation("User logged out");
+            try
+            {
+                var expire = new DateTime(Convert.ToInt64(Request.HttpContext.User.Claims.First(c => c.Type == "exp").Value));
+                var token = Request.Headers.Authorization.ToString().Split(" ")[1];
+                _logger.LogDebug("Token: " + token);
+                _logger.LogDebug("Expires: " + expire.ToString());
+                await _blackList.AddTokenAsync(new BlackListTokenDTO() { Token = token, Expiration = expire });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("{message}", ex.Message);
+                return BadRequest();
+            }
+
+            return Ok(new ResponseDTO { Status = "Success", Message = "Logged out successfully" });
+        }
+
 
         [HttpPost]
         [Route("register")]
