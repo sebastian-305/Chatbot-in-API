@@ -31,3 +31,4 @@ The files will be transfered and saved as binary files. Although we only allow t
 ## Credits
 
 (c) Alena Urbel, Sebastian Bogensperger
+Link to our private repo: <https://github.com/sebastian-305/Chatbot-in-API>
