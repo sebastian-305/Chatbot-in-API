@@ -1,8 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
+using Chatbot_in.Application.Repositories;
+using Chatbot_in.Application.Service;
 using Chatbot_in.Domain.Identity;
 using Chatbot_in.Domain.Models;
-using Chatbot_in.Domain.Repositories;
-using Chatbot_in.Domain.Service;
+using Chatbot_in.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +52,7 @@ namespace Chatbot_in.Controller
                 var token = Request.Headers.Authorization.ToString().Split(" ")[1];
                 _logger.LogDebug("Token: " + token);
                 _logger.LogDebug("Expires: " + expire.ToString());
-                await _blackList.AddTokenAsync(new BlackListTokenDTO() { Token = token, Expiration = expire });
+                await _blackList.AddTokenAsync(new BlackListToken() { Token = token, Expiration = expire });
             }
             catch (Exception ex)
             {

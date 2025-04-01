@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text;
 using Chatbot_in.Infrastructure.Gemini;
 using System.Numerics;
+using Chatbot_in.Application.Service;
 
 namespace Chatbot_in.Domain.Service;
 
@@ -88,6 +89,7 @@ public class GeminiService : IAiService
             return "Something went wrong";
         }
     }
+
 
     public async Task<string> SendPrompt(string prompt, List<KeyValuePair<string, string>> files)
     {

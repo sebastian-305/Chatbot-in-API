@@ -1,6 +1,6 @@
 ﻿using Chatbot_in.Domain.Models;
 
-namespace Chatbot_in.Domain.Service;
+namespace Chatbot_in.Application.Service;
 
 public interface IFileHandlingTemporary
 {

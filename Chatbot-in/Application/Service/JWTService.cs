@@ -1,12 +1,12 @@
 ﻿using Chatbot_in.Domain.Identity;
-using Chatbot_in.Domain.Models;
+using Chatbot_in.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Chatbot_in.Domain.Service;
+namespace Chatbot_in.Application.Service;
 
 public class JWTService : ITokenService
 {
@@ -17,7 +17,7 @@ public class JWTService : ITokenService
     {
         this.userManager = userManager;
         this.configuration = configuration;
-        this._logger = logger;
+        _logger = logger;
     }
 
     public async Task<TokenDTO> CreateTokenAsync(ApplicationUser user)
@@ -43,7 +43,7 @@ public class JWTService : ITokenService
         }
 
 
-        var secret = this.configuration.GetSection("JwtSettings")["Secret"]!;
+        var secret = configuration.GetSection("JwtSettings")["Secret"]!;
         Console.WriteLine("Generation Secret:" + secret);
         var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret));
         var token = new JwtSecurityToken(

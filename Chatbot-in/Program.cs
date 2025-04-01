@@ -1,9 +1,10 @@
 using System.Text;
+using Chatbot_in.Application.Repositories;
+using Chatbot_in.Application.Service;
 using Chatbot_in.Domain.Identity;
-using Chatbot_in.Domain.Repositories;
 using Chatbot_in.Domain.Service;
-using Chatbot_in.Infrastructure;
 using Chatbot_in.Infrastructure.HetznerDbRepository;
+using Chatbot_in.Infrastructure.HetznerFTP;
 using Chatbot_in.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpLogging;
@@ -38,6 +39,7 @@ builder.Services.AddCors(options =>
                           .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
+                          
                           .AllowCredentials();
                       });
 });
@@ -137,6 +139,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 //Nur beim ersten Mal
 //SeedDB.Initialize(

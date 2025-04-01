@@ -1,7 +1,9 @@
 ﻿using System;
 
-namespace Chatbot_in.Domain.Service;
+namespace Chatbot_in.Application.Service;
 
+
+//DEPRECATED
 public interface IPromptCounterService
 {
     void AddPrompt();

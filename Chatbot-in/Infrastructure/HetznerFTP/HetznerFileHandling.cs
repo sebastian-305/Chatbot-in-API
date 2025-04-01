@@ -1,8 +1,8 @@
-﻿using Chatbot_in.Domain.Models;
-using Chatbot_in.Domain.Service;
+﻿using Chatbot_in.Application.Service;
+using Chatbot_in.Domain.Models;
 using FluentFTP;
 
-namespace Chatbot_in.Infrastructure;
+namespace Chatbot_in.Infrastructure.HetznerFTP;
 
 public class HetznerFileHandling : IFileHandlingTemporary
 {

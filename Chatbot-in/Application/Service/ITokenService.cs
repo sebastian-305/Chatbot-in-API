@@ -1,7 +1,7 @@
 ﻿using Chatbot_in.Domain.Identity;
-using Chatbot_in.Domain.Models;
+using Chatbot_in.Models;
 
-namespace Chatbot_in.Domain.Service
+namespace Chatbot_in.Application.Service
 {
     public interface ITokenService
     {

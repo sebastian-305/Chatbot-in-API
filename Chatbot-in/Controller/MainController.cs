@@ -1,7 +1,8 @@
-﻿using Chatbot_in.Domain.Models;
-using Chatbot_in.Domain.Repositories;
-using Chatbot_in.Domain.Service;
+﻿using Chatbot_in.Application.Repositories;
+using Chatbot_in.Application.Service;
+using Chatbot_in.Domain.Models;
 using Chatbot_in.Infrastructure.SignalR;
+using Chatbot_in.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -17,15 +18,17 @@ public class MainController : ControllerBase
     private readonly ILogger<MainController> _logger;
     private readonly IFileHandlingTemporary _fileHandling;
     private readonly IContextFileInfoRepository _contextFileInfoRepository;
+    private readonly IBlackListRepository _blackListRepository;
     private readonly IAiService _geminiService;
-    private readonly IPromptCounterService _promptCounterService;
+    private readonly IPromptCountRepository _promptCounterService;
     private readonly IHubContext<RequestCounterHub, ISubscribeCounterClient> _counterHub;
 
 
     public MainController(ILogger<MainController> logger, IFileHandlingTemporary fileHandling,
         IContextFileInfoRepository contextFileInfoRepository, IAiService geminiService,
-        IPromptCounterService promptCounterService,
-        IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub
+        IPromptCountRepository promptCounterService,
+        IHubContext<RequestCounterHub, ISubscribeCounterClient> counterHub,
+        IBlackListRepository blackListRepository
 
         )
     {
@@ -35,6 +38,7 @@ public class MainController : ControllerBase
         _geminiService = geminiService;
         _promptCounterService = promptCounterService;
         _counterHub = counterHub;
+        _blackListRepository = blackListRepository;
 
     }
 
@@ -42,7 +46,12 @@ public class MainController : ControllerBase
     [HttpPatch("refreshcount")]
     public async Task GetRefreshedCount()
     {
+
         _logger.Log(LogLevel.Debug, "Entered MainController.RefreshCount");
+        if (await CheckBlackList(Request))
+            return;
+
+
         await _counterHub.Clients.All.RequestCounterChanged(
         new ISubscribeCounterClient.RequestsLeftParams()
         {
@@ -59,6 +68,8 @@ public class MainController : ControllerBase
     public async Task<ActionResult<IEnumerable<ContextFileInfo>>> GetFiles()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.GetFiles");
+        if (await CheckBlackList(Request))
+            return Unauthorized();
 
         string short_id = GetShortUid(Request);
 
@@ -73,6 +84,8 @@ public class MainController : ControllerBase
     public async Task<ActionResult<string>> PostFile()
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.PostFile");
+        if (await CheckBlackList(Request))
+            return Unauthorized();
 
         string short_id = GetShortUid(Request);
         string? filename = Request.Headers["filename"];
@@ -121,6 +134,10 @@ public class MainController : ControllerBase
     public async Task<ActionResult<string>> DeleteFile()
     {
         _logger.LogInformation("Entering MainController.DeleteFile()");
+
+        if (await CheckBlackList(Request))
+            return Unauthorized();
+
         string? filename = Request.Headers["filename"];
         string short_id = GetShortUid(Request);
 
@@ -164,7 +181,11 @@ public class MainController : ControllerBase
     public async Task<ActionResult<string>> PostChat([FromBody] AiRequestDTO request)
     {
         _logger.Log(LogLevel.Debug, "Entered MainController.Chat");
-        _promptCounterService.AddPrompt();
+
+        if (await CheckBlackList(Request))
+            return Unauthorized();
+
+        await _promptCounterService.AddPrompt();
         await _counterHub.Clients.All.RequestCounterChanged(
           new ISubscribeCounterClient.RequestsLeftParams()
           {
@@ -188,7 +209,7 @@ public class MainController : ControllerBase
     //[HttpPost("analyze")]
     //public async Task<ActionResult<string>> PostAnalyze()
     //{
-    //    string response = await _geminiService.InitializeAi("t");
+    //    string response = await _geminiService.InitializeAi();
     //    return Ok(new { response });
     //}
 
@@ -211,9 +232,18 @@ public class MainController : ControllerBase
         }
     }
 
-    private bool CheckBlackList(string token)
+    private async Task<bool> CheckBlackList(HttpRequest request)
     {
-        return true;
+        var token = request.Headers.Authorization.ToString().Split(" ")[1];
+        //Ich hoffe ich hab mit der manuellen Blacklist meine nicht meine Zeit verschwendet
+        var blacklist = await _blackListRepository.GetAllTokensAsync();
+        var reducedlist = blacklist.Select(b => b.Token);
+
+        foreach (var listitem in reducedlist)
+            if (listitem.Equals(token))
+                return true;
+
+        return false;
     }
 }
 

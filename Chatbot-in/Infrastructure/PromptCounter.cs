@@ -1,8 +1,10 @@
 ﻿using System;
-using Chatbot_in.Domain.Service;
+using Chatbot_in.Application.Service;
 
 namespace Chatbot_in.Infrastructure;
 
+
+//DEPRECATED
 public class PromptCounter : IPromptCounterService
 {
     private readonly List<DateTime> _prompts = [];

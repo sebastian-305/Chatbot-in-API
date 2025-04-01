@@ -1,5 +1,5 @@
-﻿using Chatbot_in.Domain.Models;
-using Chatbot_in.Domain.Repositories;
+﻿using Chatbot_in.Application.Repositories;
+using Chatbot_in.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chatbot_in.Infrastructure.HetznerDbRepository;
@@ -36,12 +36,12 @@ public class HetznerDbPromptCountRepository : IPromptCountRepository
             _dbContext.Requests.Remove(obj);
         }
 
-        _dbContext.Add(new RequestCounterDTO() { Prompt = DateTime.Now });
+        _dbContext.Add(new RequestCounter() { Prompt = DateTime.Now });
 
         await _dbContext.SaveChangesAsync();
     }
 
-    private async Task<IEnumerable<RequestCounterDTO>> GetAllPrompts()
+    private async Task<IEnumerable<RequestCounter>> GetAllPrompts()
     {
         return await _dbContext.Requests.ToListAsync();
     }

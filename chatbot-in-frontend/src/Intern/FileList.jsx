@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { getCookie, handleLogout } from "../scripts/Chatbotin-Helper.js"
+import { getCookie } from "../scripts/Chatbotin-Helper.js"
 import ChatbotinContext from "../ChatbotinContext"
 export function FileList() {
     const [files, setFiles] = useState([]);
@@ -10,14 +10,14 @@ export function FileList() {
 
         const request = new Request('http://localhost:5114/filelist', {
             method: 'GET',
+            mode: "cors",
             headers: {
                 "Authorization": session_token
             }
         });
         fetch(request)
-            .then(response => { console.log("Response:"); console.log(response); return response.json() })
+            .then((response) => response.json())
             .then(text => { setFiles([...text]) })
-            .catch(e => { console.log("Error"); console.log(e); handleLogout(); });
     }, [filesChanged])
 
     useEffect(() => {

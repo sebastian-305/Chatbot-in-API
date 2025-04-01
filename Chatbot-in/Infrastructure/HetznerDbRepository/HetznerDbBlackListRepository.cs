@@ -1,5 +1,5 @@
-﻿using Chatbot_in.Domain.Models;
-using Chatbot_in.Domain.Repositories;
+﻿using Chatbot_in.Application.Repositories;
+using Chatbot_in.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
@@ -16,7 +16,7 @@ public class HetznerDbBlackListRepository : IBlackListRepository
         _logger = logger;
     }
 
-    public async Task AddTokenAsync(BlackListTokenDTO token)
+    public async Task AddTokenAsync(BlackListToken token)
     {
         var expiredToken = GetAllTokensAsync().Result.Where(tokenDTO=>tokenDTO.Expiration < DateTime.Now);
 
@@ -30,7 +30,7 @@ public class HetznerDbBlackListRepository : IBlackListRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<BlackListTokenDTO>> GetAllTokensAsync()
+    public async Task<IEnumerable<BlackListToken>> GetAllTokensAsync()
     {
         return await _dbContext.BlackList.ToListAsync();
     }

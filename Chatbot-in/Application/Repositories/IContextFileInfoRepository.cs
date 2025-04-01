@@ -1,6 +1,6 @@
 ﻿using Chatbot_in.Domain.Models;
 
-namespace Chatbot_in.Domain.Repositories;
+namespace Chatbot_in.Application.Repositories;
 
 public interface IContextFileInfoRepository
 {

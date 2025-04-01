@@ -1,5 +1,5 @@
-﻿using Chatbot_in.Domain.Models;
-using Chatbot_in.Domain.Repositories;
+﻿using Chatbot_in.Application.Repositories;
+using Chatbot_in.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chatbot_in.Infrastructure.HetznerDbRepository;

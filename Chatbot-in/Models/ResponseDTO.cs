@@ -1,4 +1,4 @@
-﻿namespace Chatbot_in.Domain.Models
+﻿namespace Chatbot_in.Models
 {
     public class ResponseDTO
     {
