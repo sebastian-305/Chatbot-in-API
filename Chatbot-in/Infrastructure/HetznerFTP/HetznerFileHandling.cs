@@ -115,14 +115,16 @@ public class HetznerFileHandling : IFileHandlingTemporary
     {
         public async static Task Save(string filename, byte[] binary)
         {
-            await File.WriteAllBytesAsync(Directory.GetCurrentDirectory() + @"\" + filename, binary);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), filename);
+            await File.WriteAllBytesAsync(filePath, binary);
         }
 
         public async static Task<string[]> LoadAndDeleteTextFile(string filename)
         {
-            string[] data = await File.ReadAllLinesAsync(Directory.GetCurrentDirectory() + @"\" + filename);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), filename);
+            string[] data = await File.ReadAllLinesAsync(filePath);
 
-            File.Delete(Directory.GetCurrentDirectory() + @"\" + filename);
+            File.Delete(filePath);
 
             return data;
         }
