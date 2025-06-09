@@ -55,11 +55,11 @@ public class MainController : ControllerBase
         await _counterHub.Clients.All.RequestCounterChanged(
         new ISubscribeCounterClient.RequestsLeftParams()
         {
-            PromptsLeftDay = _promptCounterService.PromptsLeftDay,
-            PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+            PromptsLeftDay = await _promptCounterService.GetPromptsLeftDayAsync(),
+            PromptsLeftMinute = await _promptCounterService.GetPromptsLeftMinuteAsync(),
         });
 
-        _logger.LogInformation("Total prompst: {prompts}", _promptCounterService.TotalPrompts);
+        _logger.LogInformation("Total prompst: {prompts}", await _promptCounterService.GetTotalPromptsAsync());
     }
 
     //Get Fileinfos from Database
@@ -189,8 +189,8 @@ public class MainController : ControllerBase
         await _counterHub.Clients.All.RequestCounterChanged(
           new ISubscribeCounterClient.RequestsLeftParams()
           {
-              PromptsLeftDay = _promptCounterService.PromptsLeftDay,
-              PromptsLeftMinute = _promptCounterService.PromptsLeftMinute,
+              PromptsLeftDay = await _promptCounterService.GetPromptsLeftDayAsync(),
+              PromptsLeftMinute = await _promptCounterService.GetPromptsLeftMinuteAsync(),
           });
 
         string short_id = GetShortUid(Request);
