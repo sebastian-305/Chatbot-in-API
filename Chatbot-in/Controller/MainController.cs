@@ -234,7 +234,20 @@ public class MainController : ControllerBase
 
     private async Task<bool> CheckBlackList(HttpRequest request)
     {
-        var token = request.Headers.Authorization.ToString().Split(" ")[1];
+        if (!request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
+        {
+            _logger.LogWarning("Authorization header missing");
+            return false;
+        }
+
+        var parts = authHeader.ToString().Split(' ');
+        if (parts.Length < 2)
+        {
+            _logger.LogWarning("Authorization header malformed: {auth}", authHeader);
+            return false;
+        }
+
+        var token = parts[1];
         //Ich hoffe ich hab mit der manuellen Blacklist meine nicht meine Zeit verschwendet
         var blacklist = await _blackListRepository.GetAllTokensAsync();
         var reducedlist = blacklist.Select(b => b.Token);
