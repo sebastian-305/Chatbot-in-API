@@ -5,13 +5,13 @@ import ChatbotinContext from "../ChatbotinContext";
 export function UploadFile() {
     const {filesChanged, setFilesChanged } = useContext(ChatbotinContext);
 
-    return <form onSubmit={upoad_file}>
+    return <form onSubmit={upload_file}>
         <input type="file" name="myfile"></input>
         <input type="submit" value="Upload" ></input>
     </form>;
 
 
-    function upoad_file(event) {
+    function upload_file(event) {
         event.preventDefault();
 
         var request = new Request('http://localhost:5114/upload', {
