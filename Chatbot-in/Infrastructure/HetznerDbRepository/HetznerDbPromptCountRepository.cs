@@ -19,11 +19,23 @@ public class HetznerDbPromptCountRepository : IPromptCountRepository
         _logger = logger;
     }
 
-    public int PromptsLeftMinute => _RPM - GetAllPrompts().Result.Select((elem) => elem.Prompt).ToList().Count(p => p > DateTime.Now.AddMinutes(-1));
+    public async Task<int> GetPromptsLeftMinuteAsync()
+    {
+        var prompts = await GetAllPrompts();
+        return _RPM - prompts.Select(p => p.Prompt).Count(p => p > DateTime.Now.AddMinutes(-1));
+    }
 
-    public int PromptsLeftDay => _RPD - GetAllPrompts().Result.Select((elem) => elem.Prompt).ToList().Count(p => p > DateTime.Now.AddDays(-1));
+    public async Task<int> GetPromptsLeftDayAsync()
+    {
+        var prompts = await GetAllPrompts();
+        return _RPD - prompts.Select(p => p.Prompt).Count(p => p > DateTime.Now.AddDays(-1));
+    }
 
-    public int TotalPrompts => GetAllPrompts().Result.Select((elem) => elem.Prompt).ToList().Count;
+    public async Task<int> GetTotalPromptsAsync()
+    {
+        var prompts = await GetAllPrompts();
+        return prompts.Select(p => p.Prompt).Count();
+    }
 
     public async Task AddPrompt()
     {

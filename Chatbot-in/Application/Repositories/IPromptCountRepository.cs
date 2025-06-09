@@ -2,11 +2,11 @@
 
 public interface IPromptCountRepository
 {
-    int PromptsLeftMinute { get; }
+    Task<int> GetPromptsLeftMinuteAsync();
 
-    int PromptsLeftDay { get; }
+    Task<int> GetPromptsLeftDayAsync();
 
-    int TotalPrompts { get; }
+    Task<int> GetTotalPromptsAsync();
 
     Task AddPrompt();
 }
