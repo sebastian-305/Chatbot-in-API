@@ -55,7 +55,8 @@ export function ChatBot() {
                 {messages.map((msg, i) => (
                     <div key={i} style={{
                         textAlign: msg.role === "user" ? "right" : "left", border: "1px solid #EEE", marginBottom: "10px", backgroundColor: msg.role === "user" ? "#F9F9FA" : "#F9FAF9", borderRadius: "5px", padding: "0.5rem" }}>
-                        <strong>{msg.role === "user" ? "You" : "AI"}:</strong> <p dangerouslySetInnerHTML={{__html: msg.text}  }></p>
+                        <strong>{msg.role === "user" ? "You" : "AI"}:</strong>
+                        <p style={{ whiteSpace: "pre-line", wordWrap: "break-word" }}>{msg.text}</p>
                     </div>
                 ))}
                 {isLoading && <div><em>AI is thinking...</em></div>}
